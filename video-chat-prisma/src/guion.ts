@@ -1,23 +1,66 @@
 /**
- * El "idioma" del guion de video: texto plano, una acción por línea, que
- * cualquiera puede escribir sin saber nada de código. Este archivo lo
- * interpreta y arma la línea de tiempo (en frames) que usa ChatVideo.tsx
- * para saber, en cada frame, qué se ve y qué se escucha.
+ * El "idioma" del guion de video: texto plano, una acción por línea (o un
+ * bloque de varias líneas para respuestas largas), que cualquiera puede
+ * escribir sin saber nada de código. Este archivo lo interpreta y arma la
+ * línea de tiempo (en frames) que usa ChatVideo.tsx para saber, en cada
+ * frame, qué se ve y qué se escucha.
  *
  * Formato de línea (mayúsculas/minúsculas da igual, la duración va en segundos):
+ *   esperar (1s)
  *   usuario escribe (2s): texto que va tipeando el usuario
  *   usuario envia
- *   chat responde (3s): texto que "dice" el chat, se revela en el tiempo dado
  *   captura
  *   banner (4s): texto de cierre / promoción
+ *
+ * "esperar" es un silencio con la pantalla de inicio a la vista (con sus
+ * sugerencias) — útil como primer renglón del guion, para que no arranque
+ * tipeando de golpe en el frame 0.
+ *
+ * Respuesta del chat — forma corta (una línea, sin formato):
+ *   chat responde (3s): texto que "dice" el chat
+ *
+ * Respuesta del chat — forma larga (varias líneas, con negrita y tablas),
+ * para respuestas que se ven "reales" tipo ChatGPT. Se abre dejando los dos
+ * puntos vacíos, y se cierra con una línea que diga exactamente "---":
+ *
+ *   chat responde (6s):
+ *   Primer párrafo de la respuesta.
+ *
+ *   Segundo párrafo, puede usar **negrita** así.
+ *
+ *   tabla:
+ *   🥇 | Uso | Herramienta | Por qué la recomiendo | Fuente
+ *   🏢 | Otro uso | Otra herramienta | Otra razón | Fuente
+ *   fin tabla
+ *   ---
+ *
+ * Cada fila de tabla son 5 campos separados por "|": ícono, etiqueta,
+ * nombre de la herramienta (sale en negrita), la razón, y una fuente
+ * opcional (si se omite, no se muestra el chip de fuente en esa fila).
  *
  * Líneas vacías o que empiezan con # se ignoran.
  */
 
+export interface Span {
+  texto: string;
+  negrita: boolean;
+}
+
+export interface FilaTabla {
+  icono: string;
+  etiqueta: string;
+  herramienta: string;
+  porque: string;
+  fuente?: string;
+}
+
+export type BloqueContenido = { tipo: 'parrafo'; spans: Span[] } | { tipo: 'tabla'; filas: FilaTabla[] };
+
 export type AccionGuion =
+  | { tipo: 'esperar'; segundos: number }
   | { tipo: 'escribe'; segundos: number; texto: string }
   | { tipo: 'envia' }
-  | { tipo: 'responde'; segundos: number; texto: string }
+  | { tipo: 'responde'; segundos: number; contenido: BloqueContenido[] }
   | { tipo: 'captura' }
   | { tipo: 'banner'; segundos: number; texto: string };
 
@@ -29,7 +72,7 @@ export interface EventoTimeline {
 
 export interface MensajeComprometido {
   rol: 'usuario' | 'chat';
-  texto: string;
+  contenido: BloqueContenido[];
   frame: number; // frame en el que el mensaje pasa a formar parte del historial fijo
 }
 
@@ -43,34 +86,168 @@ export interface GuionParseado {
 const DURACION_ENVIA_SEG = 0.5; // coincide con el audio de "mensaje enviado"
 const DURACION_CAPTURA_SEG = 1.8; // apenas más que el audio de screenshot (1.72s)
 
-function parsearLinea(lineaCruda: string): AccionGuion | null {
-  const l = lineaCruda.trim();
-  if (!l || l.startsWith('#')) return null;
+// Cuántas "unidades" de revelado vale una fila de tabla, comparado con una
+// palabra suelta de un párrafo — así una tabla no aparece de golpe ni tarda
+// una eternidad en revelarse.
+const PESO_FILA_TABLA = 6;
 
-  let m = l.match(/^usuario escribe\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
-  if (m) return { tipo: 'escribe', segundos: parseFloat(m[1]), texto: m[2].trim() };
+/** Convierte "texto con **negrita** así" en spans, sin tocar nada más. */
+function parsearParrafo(texto: string): BloqueContenido {
+  const partes = texto.split(/\*\*(.+?)\*\*/g);
+  const spans: Span[] = partes
+    .map((parte, idx) => ({ texto: parte, negrita: idx % 2 === 1 }))
+    .filter((s) => s.texto !== '');
+  return { tipo: 'parrafo', spans };
+}
 
-  m = l.match(/^usuario env[ií]a\s*$/i);
-  if (m) return { tipo: 'envia' };
+/** Texto plano de un conjunto de bloques, usado solo para logs/():* nada crítico. */
+function textoPlano(bloques: BloqueContenido[]): string {
+  return bloques
+    .map((b) => (b.tipo === 'parrafo' ? b.spans.map((s) => s.texto).join('') : b.filas.map((f) => f.herramienta).join(', ')))
+    .join(' ');
+}
 
-  m = l.match(/^chat responde\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
-  if (m) return { tipo: 'responde', segundos: parseFloat(m[1]), texto: m[2].trim() };
+/**
+ * Lee el bloque multilínea de una respuesta larga, empezando en `desde`
+ * (la línea siguiente a "chat responde (Ns):"). Devuelve los bloques de
+ * contenido y el índice de línea desde el que hay que seguir parseando.
+ */
+function leerBloqueRespuesta(lineas: string[], desde: number): { contenido: BloqueContenido[]; siguienteIndice: number } {
+  const bloques: BloqueContenido[] = [];
+  let parrafoActual: string[] = [];
+  let i = desde;
+  let terminado = false;
 
-  m = l.match(/^captura\s*$/i);
-  if (m) return { tipo: 'captura' };
+  const cerrarParrafo = () => {
+    if (parrafoActual.length > 0) {
+      bloques.push(parsearParrafo(parrafoActual.join(' ')));
+      parrafoActual = [];
+    }
+  };
 
-  m = l.match(/^banner\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
-  if (m) return { tipo: 'banner', segundos: parseFloat(m[1]), texto: m[2].trim() };
+  while (i < lineas.length && !terminado) {
+    const l = lineas[i].trim();
 
-  console.warn(`[guion] línea no reconocida, se ignora: "${l}"`);
-  return null;
+    if (l === '---') {
+      i++;
+      terminado = true;
+      break;
+    }
+
+    // Corte de seguridad: si el guion se olvidó el "---" y arranca un
+    // comando nuevo, cerramos el bloque acá en vez de tragarnos todo lo
+    // que sigue como si fuera parte de la respuesta.
+    if (/^(esperar|usuario (escribe|env[ií]a)|chat responde|captura|banner)\b/i.test(l)) {
+      terminado = true;
+      break;
+    }
+
+    if (l === '') {
+      cerrarParrafo();
+      i++;
+      continue;
+    }
+
+    if (/^tabla\s*:?\s*$/i.test(l)) {
+      cerrarParrafo();
+      i++;
+      const filas: FilaTabla[] = [];
+      while (i < lineas.length) {
+        const filaCruda = lineas[i].trim();
+        if (filaCruda === '---') {
+          terminado = true;
+          i++;
+          break;
+        }
+        if (/^fin tabla\s*$/i.test(filaCruda)) {
+          i++;
+          break;
+        }
+        if (filaCruda === '') {
+          i++;
+          continue;
+        }
+        const partes = filaCruda.split('|').map((p) => p.trim());
+        filas.push({
+          icono: partes[0] || '',
+          etiqueta: partes[1] || '',
+          herramienta: partes[2] || '',
+          porque: partes[3] || '',
+          fuente: partes[4] || undefined,
+        });
+        i++;
+      }
+      bloques.push({ tipo: 'tabla', filas });
+      continue;
+    }
+
+    parrafoActual.push(l);
+    i++;
+  }
+
+  cerrarParrafo();
+  return { contenido: bloques, siguienteIndice: i };
 }
 
 export function parsearGuion(texto: string, fps: number): GuionParseado {
-  const acciones = texto
-    .split('\n')
-    .map(parsearLinea)
-    .filter((a): a is AccionGuion => a !== null);
+  const lineas = texto.split('\n');
+  const acciones: AccionGuion[] = [];
+
+  let i = 0;
+  while (i < lineas.length) {
+    const l = lineas[i].trim();
+    i++;
+    if (!l || l.startsWith('#')) continue;
+
+    let m = l.match(/^esperar\s*\(([\d.]+)\s*s?\)\s*$/i);
+    if (m) {
+      acciones.push({ tipo: 'esperar', segundos: parseFloat(m[1]) });
+      continue;
+    }
+
+    m = l.match(/^usuario escribe\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
+    if (m) {
+      acciones.push({ tipo: 'escribe', segundos: parseFloat(m[1]), texto: m[2].trim() });
+      continue;
+    }
+
+    m = l.match(/^usuario env[ií]a\s*$/i);
+    if (m) {
+      acciones.push({ tipo: 'envia' });
+      continue;
+    }
+
+    // Forma corta: todo en una línea.
+    m = l.match(/^chat responde\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
+    if (m) {
+      acciones.push({ tipo: 'responde', segundos: parseFloat(m[1]), contenido: [parsearParrafo(m[2].trim())] });
+      continue;
+    }
+
+    // Forma larga: los dos puntos quedan vacíos, el contenido viene en las líneas de abajo.
+    m = l.match(/^chat responde\s*\(([\d.]+)\s*s?\)\s*:\s*$/i);
+    if (m) {
+      const segundos = parseFloat(m[1]);
+      const { contenido, siguienteIndice } = leerBloqueRespuesta(lineas, i);
+      acciones.push({ tipo: 'responde', segundos, contenido });
+      i = siguienteIndice;
+      continue;
+    }
+
+    m = l.match(/^captura\s*$/i);
+    if (m) {
+      acciones.push({ tipo: 'captura' });
+      continue;
+    }
+
+    m = l.match(/^banner\s*\(([\d.]+)\s*s?\)\s*:\s*(.+)$/i);
+    if (m) {
+      acciones.push({ tipo: 'banner', segundos: parseFloat(m[1]), texto: m[2].trim() });
+      continue;
+    }
+
+    console.warn(`[guion] línea no reconocida, se ignora: "${l}"`);
+  }
 
   const eventos: EventoTimeline[] = [];
   const mensajesComprometidos: MensajeComprometido[] = [];
@@ -78,7 +255,11 @@ export function parsearGuion(texto: string, fps: number): GuionParseado {
   let escribiendoActual: string | null = null;
 
   for (const accion of acciones) {
-    if (accion.tipo === 'escribe') {
+    if (accion.tipo === 'esperar') {
+      const dur = Math.max(1, Math.round(accion.segundos * fps));
+      eventos.push({ accion, desde: cursor, hasta: cursor + dur });
+      cursor += dur;
+    } else if (accion.tipo === 'escribe') {
       const dur = Math.max(1, Math.round(accion.segundos * fps));
       eventos.push({ accion, desde: cursor, hasta: cursor + dur });
       cursor += dur;
@@ -88,14 +269,18 @@ export function parsearGuion(texto: string, fps: number): GuionParseado {
       eventos.push({ accion, desde: cursor, hasta: cursor + dur });
       cursor += dur;
       if (escribiendoActual !== null) {
-        mensajesComprometidos.push({ rol: 'usuario', texto: escribiendoActual, frame: cursor });
+        mensajesComprometidos.push({
+          rol: 'usuario',
+          contenido: [parsearParrafo(escribiendoActual)],
+          frame: cursor,
+        });
         escribiendoActual = null;
       }
     } else if (accion.tipo === 'responde') {
       const dur = Math.max(1, Math.round(accion.segundos * fps));
       eventos.push({ accion, desde: cursor, hasta: cursor + dur });
       cursor += dur;
-      mensajesComprometidos.push({ rol: 'chat', texto: accion.texto, frame: cursor });
+      mensajesComprometidos.push({ rol: 'chat', contenido: accion.contenido, frame: cursor });
     } else if (accion.tipo === 'captura') {
       const dur = Math.max(1, Math.round(DURACION_CAPTURA_SEG * fps));
       eventos.push({ accion, desde: cursor, hasta: cursor + dur });
@@ -130,3 +315,66 @@ export function progresoTeclado(frame: number, eventos: EventoTimeline[]): numbe
   }
   return 0;
 }
+
+/** Cuántas "unidades" de revelado (palabras, filas de tabla) tiene un conjunto de bloques. */
+export function contarUnidades(bloques: BloqueContenido[]): number {
+  let total = 0;
+  for (const b of bloques) {
+    if (b.tipo === 'parrafo') {
+      total += b.spans.reduce((acc, s) => acc + (s.texto.trim().split(/\s+/).filter(Boolean).length || 0), 0);
+    } else {
+      total += b.filas.length * PESO_FILA_TABLA;
+    }
+  }
+  return Math.max(1, total);
+}
+
+/**
+ * Devuelve una versión parcial de los bloques, revelada hasta `progreso`
+ * (0 a 1) — párrafos revelados palabra por palabra, tablas reveladas fila
+ * por fila. Así una respuesta larga con tabla se arma en cámara en vez de
+ * aparecer entera de golpe.
+ */
+export function revelarContenido(bloques: BloqueContenido[], progreso: number): BloqueContenido[] {
+  const total = contarUnidades(bloques);
+  let restantes = Math.max(0, Math.ceil(total * Math.min(1, Math.max(0, progreso))));
+  const resultado: BloqueContenido[] = [];
+
+  for (const b of bloques) {
+    if (restantes <= 0) break;
+
+    if (b.tipo === 'parrafo') {
+      const spansRevelados: Span[] = [];
+      for (const span of b.spans) {
+        if (restantes <= 0) break;
+        const partes = span.texto.split(/(\s+)/);
+        let textoSpan = '';
+        let usados = 0;
+        for (const parte of partes) {
+          if (parte.trim() === '') {
+            textoSpan += parte;
+            continue;
+          }
+          if (usados >= restantes) break;
+          textoSpan += parte;
+          usados++;
+        }
+        if (textoSpan) spansRevelados.push({ texto: textoSpan, negrita: span.negrita });
+        restantes -= usados;
+      }
+      if (spansRevelados.length > 0) resultado.push({ tipo: 'parrafo', spans: spansRevelados });
+    } else {
+      const filasAMostrar = Math.min(b.filas.length, Math.floor(restantes / PESO_FILA_TABLA));
+      if (filasAMostrar > 0) {
+        resultado.push({ tipo: 'tabla', filas: b.filas.slice(0, filasAMostrar) });
+        restantes -= filasAMostrar * PESO_FILA_TABLA;
+      } else {
+        restantes = 0;
+      }
+    }
+  }
+
+  return resultado;
+}
+
+export { textoPlano };

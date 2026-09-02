@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoCon
 import { parsearGuion, eventoEnFrame, progresoTeclado } from './guion';
 import { ChatGPTHeader } from './components/ChatGPTHeader';
 import { ListaMensajes } from './components/ListaMensajes';
+import { SugerenciasInicio } from './components/SugerenciasInicio';
 import { ZonaEscritura } from './components/ZonaEscritura';
 import { Captura } from './components/Captura';
 import { BannerFinal } from './components/BannerFinal';
@@ -80,10 +81,12 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
         }
       : null;
 
+  const accionResponde = eventoActual && eventoActual.accion.tipo === 'responde' ? eventoActual.accion : null;
+  const respondiendoAhora = accionResponde !== null;
   const respondiendo =
-    eventoActual?.accion.tipo === 'responde'
+    accionResponde && eventoActual
       ? {
-          texto: eventoActual.accion.texto,
+          contenido: accionResponde.contenido,
           progreso: (frame - eventoActual.desde) / (eventoActual.hasta - eventoActual.desde),
         }
       : null;
@@ -91,11 +94,27 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
   const enCaptura = eventoActual?.accion.tipo === 'captura';
   const progresoCaptura = enCaptura ? (frame - eventoActual!.desde) / (eventoActual!.hasta - eventoActual!.desde) : 0;
 
+  // La conversación "arranca" (cambia el header, se esconden las sugerencias
+  // de inicio) apenas se dispara el primer envío, no recién cuando termina
+  // de asentarse el mensaje — así coincide con el momento real en que la
+  // app cambia de pantalla.
+  const conversacionIniciada = historial.length > 0 || eventoActual?.accion.tipo === 'envia';
+  const mostrarSugerencias = !conversacionIniciada && !escribiendo;
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#212121' }}>
-      <ChatGPTHeader />
-      <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
-      <ZonaEscritura frame={frame} escribiendo={escribiendo} progresoTeclado={progresoTeclado(frame, eventos)} />
+      <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
+      {mostrarSugerencias ? (
+        <SugerenciasInicio />
+      ) : (
+        <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
+      )}
+      <ZonaEscritura
+        frame={frame}
+        escribiendo={escribiendo}
+        respondiendo={respondiendoAhora}
+        progresoTeclado={progresoTeclado(frame, eventos)}
+      />
       {enCaptura && <Captura progreso={progresoCaptura} />}
       {capaAudio}
     </AbsoluteFill>
