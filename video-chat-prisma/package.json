@@ -1,0 +1,19 @@
+{
+  "name": "video-chat-prisma",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Motor en React/Remotion para generar videos verticales que simulan una conversación de chat, a partir de un guion de texto plano.",
+  "scripts": {
+    "start": "remotion studio",
+    "render": "remotion render ChatVideo out/video.mp4"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0",
+    "@remotion/cli": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
