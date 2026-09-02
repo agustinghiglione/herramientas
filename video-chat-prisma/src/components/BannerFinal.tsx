@@ -31,7 +31,7 @@ export const BannerFinal: React.FC<{ texto: string; progreso: number }> = ({ tex
           marginBottom: 46,
         }}
       >
-        <span style={{ fontWeight: 800 }}>CONSULTORA</span> <span style={{ fontWeight: 500 }}>PRISMA</span>
+        <span style={{ fontWeight: 500 }}>CONSULTORA</span> <span style={{ fontWeight: 800 }}>PRISMA</span>
       </div>
 
       <div
