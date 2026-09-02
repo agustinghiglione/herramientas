@@ -18,9 +18,7 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
 
   const { eventos, mensajesComprometidos } = useMemo(() => parsearGuion(guionTexto, fps), [guionTexto, fps]);
 
-  const historial = mensajesComprometidos
-    .filter((m) => m.frame <= frame)
-    .map((m) => ({ rol: m.rol, texto: m.texto }));
+  const historial = mensajesComprometidos.filter((m) => m.frame <= frame);
 
   const eventoActual = eventoEnFrame(eventos, frame);
 
@@ -41,6 +39,16 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
       return (
         <Sequence key={i} from={e.desde} durationInFrames={e.hasta - e.desde}>
           <Audio src={staticFile(AUDIO_ENVIA)} />
+        </Sequence>
+      );
+    }
+    if (e.accion.tipo === 'responde') {
+      // Mismo sonido de "mensaje enviado", pero disparado al arrancar la
+      // respuesta del chat — así se escucha cada vez que el chat manda un
+      // mensaje, no solo cuando lo manda el usuario.
+      return (
+        <Sequence key={i} from={e.desde} durationInFrames={Math.max(1, Math.round(0.5 * fps))}>
+          <Audio src={staticFile(AUDIO_ENVIA)} volume={0.85} />
         </Sequence>
       );
     }
@@ -86,7 +94,7 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#212121' }}>
       <ChatGPTHeader />
-      <ListaMensajes historial={historial} respondiendo={respondiendo ?? undefined} />
+      <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
       <ZonaEscritura frame={frame} escribiendo={escribiendo} progresoTeclado={progresoTeclado(frame, eventos)} />
       {enCaptura && <Captura progreso={progresoCaptura} />}
       {capaAudio}
