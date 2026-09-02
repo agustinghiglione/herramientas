@@ -4,7 +4,65 @@ import { interpolate } from 'remotion';
 interface Props {
   frame: number;
   escribiendo: { texto: string; progreso: number } | null;
+  respondiendo: boolean;
   progresoTeclado: number; // 0 = oculto, 1 = visible
+}
+
+function IconoMas28() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4V20M4 12H20" stroke="#ececec" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconoOndas() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect x="1" y="8" width="3" height="6" rx="1.5" fill="#fff" />
+      <rect x="6.5" y="4" width="3" height="14" rx="1.5" fill="#fff" />
+      <rect x="12" y="0" width="3" height="22" rx="1.5" fill="#fff" />
+      <rect x="17.5" y="6" width="3" height="10" rx="1.5" fill="#fff" />
+    </svg>
+  );
+}
+
+function IconoFlechaArriba() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 17V3M10 3L4 9M10 3L16 9" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconoDetener() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="0" y="0" width="16" height="16" rx="3" fill="#fff" />
+    </svg>
+  );
+}
+
+/** El botón redondo cambia de ícono según el estado — ondas de voz en reposo, flecha al escribir, cuadrado mientras el chat responde. */
+function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo' }) {
+  return (
+    <div
+      style={{
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        background: '#0a84ff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {estado === 'idle' && <IconoOndas />}
+      {estado === 'escribiendo' && <IconoFlechaArriba />}
+      {estado === 'respondiendo' && <IconoDetener />}
+    </div>
+  );
 }
 
 const FILA_1 = 'QWERTYUIOP'.split('');
@@ -164,7 +222,7 @@ function textoParcialPorCaracteres(texto: string, progreso: number) {
   return texto.slice(0, n);
 }
 
-export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, progresoTeclado }) => {
+export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiendo, progresoTeclado }) => {
   const textoParcial = escribiendo ? textoParcialPorCaracteres(escribiendo.texto, escribiendo.progreso) : '';
   const cursorVisible = Math.floor(frame / 12) % 2 === 0;
 
@@ -181,6 +239,8 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, progresoTec
     letraActiva = escribiendo.texto[indice].toUpperCase();
   }
 
+  const estadoBoton: 'idle' | 'escribiendo' | 'respondiendo' = escribiendo ? 'escribiendo' : respondiendo ? 'respondiendo' : 'idle';
+
   return (
     <div style={{ marginTop: 'auto' }}>
       <div style={{ padding: '0 28px 18px' }}>
@@ -191,20 +251,29 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, progresoTec
             minHeight: 76,
             display: 'flex',
             alignItems: 'center',
-            padding: '0 26px',
-            color: escribiendo ? '#ececec' : 'rgba(236,236,236,0.4)',
-            fontSize: 28,
-            fontFamily: 'Inter, sans-serif',
+            gap: 16,
+            padding: '0 16px 0 22px',
           }}
         >
-          {escribiendo ? (
-            <span>
-              {textoParcial}
-              {cursorVisible ? '▍' : ''}
-            </span>
-          ) : (
-            'Enviar un mensaje'
-          )}
+          <IconoMas28 />
+          <div
+            style={{
+              flex: 1,
+              color: escribiendo ? '#ececec' : 'rgba(236,236,236,0.4)',
+              fontSize: 28,
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            {escribiendo ? (
+              <span>
+                {textoParcial}
+                {cursorVisible ? '▍' : ''}
+              </span>
+            ) : (
+              'Enviar un mensaje'
+            )}
+          </div>
+          <BotonEnvio estado={estadoBoton} />
         </div>
       </div>
       <div

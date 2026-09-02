@@ -2,9 +2,20 @@
 # Para probar otro video, reemplazá el contenido de este archivo por un guion
 # nuevo con el mismo formato (ver README.md) y volvé a correr el comando.
 
-usuario escribe (2.2s): che, ¿cómo sé si mi negocio es rentable de verdad y no solo que entra plata?
+esperar (1.2s)
+usuario escribe (2.4s): che, ¿qué uso para controlar los gastos del negocio sin volverme loco?
 usuario envia
-chat responde (3.2s): Buena pregunta — que entre plata no es lo mismo que ganar plata. Rentable es lo que te queda después de restar TODOS los costos, no solo lo que ves en la cuenta.
-chat responde (2.8s): Si hoy no podés responder eso en menos de un minuto, con números reales, ahí está la primera oportunidad de mejora.
+chat responde (7s):
+Depende de cuánto movimiento tengas, pero en general hay tres caminos que funcionan bien.
+
+Para **la mayoría de los negocios chicos**, así los ordenaría hoy:
+
+tabla:
+📋 | Recién arrancás | Planilla simple | Rápida de armar y entendés cada peso que entra y sale. | Guía Prisma
+📱 | Ya tenés movimiento diario | App de gestión | Categoriza gastos solo y te avisa si algo se te va de rango. | Guía Prisma
+🧾 | Impuestos y balances | Tu contador | Nadie reemplaza el criterio profesional a la hora de presentar todo. | Guía Prisma
+fin tabla
+---
+chat responde (2.6s): Lo importante es que sea algo que realmente vayas a usar todas las semanas — la mejor herramienta es la que no abandonás al mes.
 captura
 banner (4s): Hacé el Diagnóstico Prisma gratis y descubrí en qué área de tu negocio conviene empezar.
