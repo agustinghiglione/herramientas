@@ -4,8 +4,8 @@ const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
 function IconoHistorial() {
   return (
-    <svg width="40" height="30" viewBox="0 0 22 16" fill="none">
-      <path d="M1 1H21M1 8H21M1 15H21" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" />
+    <svg width="46" height="35" viewBox="0 0 22 16" fill="none">
+      <path d="M1 1H21M1 8H21M1 15H21" stroke="#FFFFFF" strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -29,11 +29,11 @@ function IconoRefresh() {
  * "puntitos diminutos" en vez de íconos claros. */
 function IconoLapiz() {
   return (
-    <svg width="38" height="38" viewBox="0 0 20 20" fill="none">
+    <svg width="44" height="44" viewBox="0 0 20 20" fill="none">
       <path
         d="M13.5 2.5L17.5 6.5L7 17H3V13L13.5 2.5Z"
         stroke="#FFFFFF"
-        strokeWidth="1.8"
+        strokeWidth="2.1"
         strokeLinejoin="round"
       />
     </svg>
@@ -42,10 +42,10 @@ function IconoLapiz() {
 
 function IconoMas() {
   return (
-    <svg width="38" height="12" viewBox="0 0 20 6" fill="none">
-      <circle cx="3" cy="3" r="2.6" fill="#FFFFFF" />
-      <circle cx="10" cy="3" r="2.6" fill="#FFFFFF" />
-      <circle cx="17" cy="3" r="2.6" fill="#FFFFFF" />
+    <svg width="44" height="14" viewBox="0 0 20 6" fill="none">
+      <circle cx="3" cy="3" r="3" fill="#FFFFFF" />
+      <circle cx="10" cy="3" r="3" fill="#FFFFFF" />
+      <circle cx="17" cy="3" r="3" fill="#FFFFFF" />
     </svg>
   );
 }
@@ -61,8 +61,8 @@ function IconoMas() {
  * fondo sólido #1A1A1A. El CONTENEDOR de los botones de refresh/lápiz+más
  * mantiene la opacidad suave (así se ven en la referencia real cuando no
  * son el ícono de navegación principal), pero los ÍCONOS en sí van en
- * blanco puro y más grandes (36-40px) — a esta escala, con el ícono
- * también en opacidad reducida se leían como "puntitos diminutos".
+ * blanco puro — y un +15% más grandes que la ronda anterior (hamburguesa
+ * y lápiz, para que no se pierdan en pantallas móviles chicas).
  */
 export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ conversacionIniciada }) => {
   return (

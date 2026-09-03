@@ -59,27 +59,17 @@ function BurbujaUsuario({ contenido, frame, frameDeAparicion }: { contenido: Blo
 
 // La respuesta del chat va sin burbuja ni avatar — texto plano contra el
 // fondo, igual que la referencia real de la app de ChatGPT.
-function BloqueChat({ contenido, frame, frameDeAparicion }: { contenido: BloqueContenido[]; frame: number; frameDeAparicion: number }) {
-  const { opacity, translateY } = useEntrada(frame, frameDeAparicion);
-  return (
-    <div
-      style={{
-        marginBottom: 34,
-        opacity,
-        transform: `translateY(${translateY}px)`,
-      }}
-    >
-      <ContenidoMensaje bloques={contenido} />
-    </div>
-  );
-}
-
-// La respuesta que se está revelando en vivo NO usa la animación de entrada
-// (esa es para cuando un mensaje ya armado aparece de golpe en el historial):
-// acá el "aparecer" ya lo hace la revelación palabra por palabra, así que va
-// siempre a opacidad plena — si reusáramos useEntrada con frameDeAparicion
-// igual al frame actual, la edad da siempre 0 y el texto queda invisible
-// (justo el bug que tenía esto antes).
+//
+// A diferencia de la burbuja del usuario, un mensaje del chat NUNCA usa la
+// animación de entrada (fade + deslizamiento) — ni siquiera una vez que ya
+// pasó a formar parte del historial. La razón: para cuando un "chat
+// responde" termina y se "compromete" al historial, ese mismo contenido ya
+// estuvo un rato en pantalla revelándose palabra por palabra a opacidad
+// plena (ver BloqueChatVivo abajo). Si al comprometerse volviera a arrancar
+// la animación de entrada desde opacity:0, el texto "desaparecía" un
+// instante y volvía a aparecer — justo el parpadeo que se reportó al pasar
+// de la respuesta a la captura. Por eso un solo componente, sin animación,
+// sirve para los dos casos (revelándose en vivo Y ya comprometido).
 function BloqueChatVivo({ contenido }: { contenido: BloqueContenido[] }) {
   return (
     <div style={{ marginBottom: 34 }}>
@@ -162,7 +152,7 @@ export const ListaMensajes: React.FC<Props> = ({ frame, historial, respondiendo 
         m.rol === 'usuario' ? (
           <BurbujaUsuario key={i} contenido={m.contenido} frame={frame} frameDeAparicion={m.frame} />
         ) : (
-          <BloqueChat key={i} contenido={m.contenido} frame={frame} frameDeAparicion={m.frame} />
+          <BloqueChatVivo key={i} contenido={m.contenido} />
         ),
       )}
       {respondiendo &&

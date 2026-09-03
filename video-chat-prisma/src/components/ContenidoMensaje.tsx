@@ -15,8 +15,12 @@ const COLOR_MARCA = '#e4b15e';
  * negrita siempre pasa a blanco puro en ambos casos.
  */
 function Parrafo({ spans, colorBase }: { spans: { texto: string; negrita: boolean; destacado: boolean }[]; colorBase: string }) {
+  // Interlineado más ajustado y menos margen entre párrafos que en la
+  // ronda anterior — así la respuesta termina más arriba y les deja a las
+  // tarjetas de consejo la mitad inferior de la pantalla, que es donde
+  // tiene que estar puesta la atención justo antes del corte al banner.
   return (
-    <p style={{ margin: '0 0 24px', fontSize: 37, lineHeight: 1.35, color: colorBase, fontFamily: FUENTE_SISTEMA }}>
+    <p style={{ margin: '0 0 16px', fontSize: 39, lineHeight: 1.3, color: colorBase, fontFamily: FUENTE_SISTEMA }}>
       {spans.map((s, i) => (
         <span
           key={i}
@@ -32,26 +36,34 @@ function Parrafo({ spans, colorBase }: { spans: { texto: string; negrita: boolea
   );
 }
 
-/** Una fila de la "tabla" de comparación, como tarjeta — se lee mejor en formato vertical que columnas que se cortan. */
+/**
+ * Una fila de la "tabla" de comparación, como tarjeta — se lee mejor en
+ * formato vertical que columnas que se cortan.
+ *
+ * Rediseñada como foco de conversión (según feedback del experto): título
+ * grande y en blanco puro, bajada con más contraste, emoji como ancla
+ * visual, y el link de la fuente en azul celeste — para que se lea de un
+ * solo golpe de vista, sin tener que pausar el video.
+ */
 function TarjetaFila({ icono, etiqueta, herramienta, porque, fuente }: { icono: string; etiqueta: string; herramienta: string; porque: string; fuente?: string }) {
   return (
     <div
       style={{
         background: '#1E1E1E',
-        border: '1px solid #2C2C2C',
+        border: '1.5px solid #3A3A3A',
         borderRadius: 19,
-        padding: 29,
+        padding: 32,
         marginBottom: 22,
         fontFamily: FUENTE_SISTEMA,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-        {icono && <span style={{ fontSize: 29 }}>{icono}</span>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+        {icono && <span style={{ fontSize: 42, lineHeight: 1 }}>{icono}</span>}
         <span style={{ fontSize: 26, color: '#A1A1A1' }}>{etiqueta}</span>
       </div>
-      <div style={{ fontSize: 31, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>{herramienta}</div>
+      <div style={{ fontSize: 35, fontWeight: 700, color: '#FFFFFF', marginBottom: 12 }}>{herramienta}</div>
       {porque && (
-        <div style={{ fontSize: 26, lineHeight: 1.45, color: '#A1A1A1', marginBottom: fuente ? 17 : 0 }}>
+        <div style={{ fontSize: 28, lineHeight: 1.4, color: '#D1D1D1', marginBottom: fuente ? 17 : 0 }}>
           {porque}
         </div>
       )}
@@ -82,7 +94,9 @@ function TarjetaFila({ icono, etiqueta, herramienta, porque, fuente }: { icono: 
           >
             IA
           </span>
-          <span style={{ fontSize: 22, color: '#666666' }}>{fuente}</span>
+          {/* Azul "link" (#007AFF, el mismo del botón de envío) para que se
+              lea como un enlace clickeable, no como un dato al pasar. */}
+          <span style={{ fontSize: 22, color: '#007AFF', fontWeight: 500 }}>{fuente}</span>
         </div>
       )}
     </div>
