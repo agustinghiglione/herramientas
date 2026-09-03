@@ -1,12 +1,23 @@
 import React from 'react';
 import type { BloqueContenido } from '../guion';
 
-/** Un párrafo: spans en negrita o normales, en fila. */
-function Parrafo({ spans }: { spans: { texto: string; negrita: boolean }[] }) {
+// Color de marca (mismo dorado del banner y del footer del sitio) para el
+// texto "++destacado++" — cuando la respuesta recomienda algo nuestro, tiene
+// que saltar a la vista en el medio del texto blanco.
+const COLOR_MARCA = '#e4b15e';
+
+/** Un párrafo: spans en negrita, normales, o destacados en color de marca. */
+function Parrafo({ spans }: { spans: { texto: string; negrita: boolean; destacado: boolean }[] }) {
   return (
     <p style={{ margin: '0 0 22px', fontSize: 30, lineHeight: 1.5, color: '#ececec', fontFamily: 'Inter, sans-serif' }}>
       {spans.map((s, i) => (
-        <span key={i} style={{ fontWeight: s.negrita ? 700 : 400 }}>
+        <span
+          key={i}
+          style={{
+            fontWeight: s.negrita || s.destacado ? 700 : 400,
+            color: s.destacado ? COLOR_MARCA : undefined,
+          }}
+        >
           {s.texto}
         </span>
       ))}

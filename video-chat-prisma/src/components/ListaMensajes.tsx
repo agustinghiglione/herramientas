@@ -74,6 +74,20 @@ function BloqueChat({ contenido, frame, frameDeAparicion }: { contenido: BloqueC
   );
 }
 
+// La respuesta que se está revelando en vivo NO usa la animación de entrada
+// (esa es para cuando un mensaje ya armado aparece de golpe en el historial):
+// acá el "aparecer" ya lo hace la revelación palabra por palabra, así que va
+// siempre a opacidad plena — si reusáramos useEntrada con frameDeAparicion
+// igual al frame actual, la edad da siempre 0 y el texto queda invisible
+// (justo el bug que tenía esto antes).
+function BloqueChatVivo({ contenido }: { contenido: BloqueContenido[] }) {
+  return (
+    <div style={{ marginBottom: 34 }}>
+      <ContenidoMensaje bloques={contenido} />
+    </div>
+  );
+}
+
 /** Los tres puntitos que "respiran" mientras el chat compone la respuesta, antes de que aparezcan las palabras. */
 function PuntosEscribiendo({ frame }: { frame: number }) {
   return (
@@ -106,10 +120,19 @@ function PuntosEscribiendo({ frame }: { frame: number }) {
 // otro lado hay una IA pensando, en vez de que el texto brote instantáneo.
 const FRACCION_PENSANDO = 0.12;
 
+// Fracción de la ventana "post-pensando" que se usa para revelar el
+// contenido — el resto (1 - esto) queda como pausa de lectura al final,
+// con todo ya mostrado, antes de cortar al siguiente evento del guion.
+const FRACCION_REVELADO = 0.82;
+
 export const ListaMensajes: React.FC<Props> = ({ frame, historial, respondiendo }) => {
   const pensando = respondiendo && respondiendo.progreso < FRACCION_PENSANDO;
+  // El contenido termina de revelarse un poco antes del final de la
+  // duración (no exactamente al último frame) y se queda quieto ese resto
+  // — un respiro para que se alcance a leer la respuesta, sobre todo
+  // cuando termina recomendando algo nuestro, antes de cortar a lo que sigue.
   const progresoContenido = respondiendo
-    ? Math.max(0, (respondiendo.progreso - FRACCION_PENSANDO) / (1 - FRACCION_PENSANDO))
+    ? Math.min(1, Math.max(0, (respondiendo.progreso - FRACCION_PENSANDO) / (1 - FRACCION_PENSANDO)) / FRACCION_REVELADO)
     : 0;
 
   return (
@@ -140,7 +163,7 @@ export const ListaMensajes: React.FC<Props> = ({ frame, historial, respondiendo 
         (pensando ? (
           <PuntosEscribiendo frame={frame} />
         ) : (
-          <BloqueChat contenido={revelarContenido(respondiendo.contenido, progresoContenido)} frame={frame} frameDeAparicion={frame} />
+          <BloqueChatVivo contenido={revelarContenido(respondiendo.contenido, progresoContenido)} />
         ))}
     </div>
   );

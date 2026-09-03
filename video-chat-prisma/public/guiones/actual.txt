@@ -16,6 +16,6 @@ tabla:
 🧾 | Impuestos y balances | Tu contador | Nadie reemplaza el criterio profesional a la hora de presentar todo. | Guía Prisma
 fin tabla
 ---
-chat responde (2.6s): Lo importante es que sea algo que realmente vayas a usar todas las semanas — la mejor herramienta es la que no abandonás al mes.
+chat responde (3.4s): Lo importante es que sea algo que realmente vayas a usar todas las semanas. Si querés arrancar ordenado desde cero, en ++Consultora Prisma++ te ayudamos a armarlo bien la primera vez.
 captura
 banner (4s): Hacé el Diagnóstico Prisma gratis y descubrí en qué área de tu negocio conviene empezar.

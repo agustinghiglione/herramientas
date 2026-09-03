@@ -26,7 +26,9 @@
  *   chat responde (6s):
  *   Primer párrafo de la respuesta.
  *
- *   Segundo párrafo, puede usar **negrita** así.
+ *   Segundo párrafo, puede usar **negrita** así, o ++destacado++ (color de
+ *   marca) para cuando la respuesta recomienda algo nuestro y ese texto
+ *   tiene que llamar la atención — por ejemplo ++Consultora Prisma++.
  *
  *   tabla:
  *   🥇 | Uso | Herramienta | Por qué la recomiendo | Fuente
@@ -44,6 +46,8 @@
 export interface Span {
   texto: string;
   negrita: boolean;
+  /** Color de marca — para cuando la respuesta recomienda algo nuestro y ese texto tiene que llamar la atención. */
+  destacado: boolean;
 }
 
 export interface FilaTabla {
@@ -91,13 +95,27 @@ const DURACION_CAPTURA_SEG = 1.8; // apenas más que el audio de screenshot (1.7
 // una eternidad en revelarse.
 const PESO_FILA_TABLA = 6;
 
-/** Convierte "texto con **negrita** así" en spans, sin tocar nada más. */
+/** Convierte "texto con **negrita** y ++destacado++ así" en spans. */
 function parsearParrafo(texto: string): BloqueContenido {
-  const partes = texto.split(/\*\*(.+?)\*\*/g);
-  const spans: Span[] = partes
-    .map((parte, idx) => ({ texto: parte, negrita: idx % 2 === 1 }))
-    .filter((s) => s.texto !== '');
-  return { tipo: 'parrafo', spans };
+  const spans: Span[] = [];
+  const regex = /\*\*(.+?)\*\*|\+\+(.+?)\+\+/g;
+  let ultimo = 0;
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(texto)) !== null) {
+    if (m.index > ultimo) {
+      spans.push({ texto: texto.slice(ultimo, m.index), negrita: false, destacado: false });
+    }
+    if (m[1] !== undefined) {
+      spans.push({ texto: m[1], negrita: true, destacado: false });
+    } else if (m[2] !== undefined) {
+      spans.push({ texto: m[2], negrita: false, destacado: true });
+    }
+    ultimo = regex.lastIndex;
+  }
+  if (ultimo < texto.length) {
+    spans.push({ texto: texto.slice(ultimo), negrita: false, destacado: false });
+  }
+  return { tipo: 'parrafo', spans: spans.filter((s) => s.texto !== '') };
 }
 
 /** Texto plano de un conjunto de bloques, usado solo para logs/():* nada crítico. */
@@ -316,6 +334,69 @@ export function progresoTeclado(frame: number, eventos: EventoTimeline[]): numbe
   return 0;
 }
 
+/** Pseudoaleatorio determinístico en [0,1) — mismo resultado siempre para la misma semilla, sin depender de Math.random() (Remotion necesita que cada frame se pueda recalcular igual, en cualquier orden). */
+function pseudoAleatorio(semilla: number): number {
+  const x = Math.sin(semilla * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/**
+ * Curva de tipeo con ritmo humano: no todos los caracteres tardan lo mismo.
+ * Pausas más largas después de espacios y signos de puntuación, y una
+ * pequeña variación aleatoria (pero determinística) carácter a carácter —
+ * así el tipeo no se ve como un contador lineal. Devuelve, para cada
+ * carácter, el umbral acumulado (0 a 1) en el que termina de "aparecer".
+ */
+export function curvaTipeo(texto: string): number[] {
+  const n = texto.length;
+  if (n === 0) return [];
+  const pesos: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const c = texto[i];
+    let peso = 1;
+    if (c === ' ') peso = 2.4;
+    else if (/[.,;:?!¿¡—-]/.test(c)) peso = 3.2;
+    const jitter = 0.7 + pseudoAleatorio(i * 7.13 + n * 0.37) * 0.6; // 0.7x a 1.3x
+    pesos.push(Math.max(0.3, peso * jitter));
+  }
+  const total = pesos.reduce((a, b) => a + b, 0);
+  let acumulado = 0;
+  return pesos.map((p) => {
+    acumulado += p;
+    return acumulado / total;
+  });
+}
+
+/**
+ * Dado un texto y un progreso (0 a 1) sobre su curva de tipeo, devuelve
+ * cuánto texto ya "apareció" y qué letra está en pleno tipeo ahora mismo
+ * (para sincronizar el teclado) — una sola fuente de verdad para el texto
+ * parcial y la tecla activa, así nunca se desincronizan entre sí.
+ */
+export function estadoTipeo(texto: string, progreso: number): { textoVisible: string; letraActiva: string | null; faseActiva: number } {
+  if (texto.length === 0) return { textoVisible: '', letraActiva: null, faseActiva: 0 };
+
+  const curva = curvaTipeo(texto);
+  const p = Math.min(1, Math.max(0, progreso));
+
+  let visibles = 0;
+  for (const umbral of curva) {
+    if (umbral <= p) visibles++;
+    else break;
+  }
+
+  const indiceActivo = visibles < texto.length ? visibles : texto.length - 1;
+  const umbralAnterior = indiceActivo === 0 ? 0 : curva[indiceActivo - 1];
+  const umbralActual = curva[indiceActivo];
+  const fase = umbralActual > umbralAnterior ? (p - umbralAnterior) / (umbralActual - umbralAnterior) : 1;
+
+  return {
+    textoVisible: texto.slice(0, visibles),
+    letraActiva: texto[indiceActivo].toUpperCase(),
+    faseActiva: Math.min(1, Math.max(0, fase)),
+  };
+}
+
 /** Cuántas "unidades" de revelado (palabras, filas de tabla) tiene un conjunto de bloques. */
 export function contarUnidades(bloques: BloqueContenido[]): number {
   let total = 0;
@@ -359,7 +440,7 @@ export function revelarContenido(bloques: BloqueContenido[], progreso: number): 
           textoSpan += parte;
           usados++;
         }
-        if (textoSpan) spansRevelados.push({ texto: textoSpan, negrita: span.negrita });
+        if (textoSpan) spansRevelados.push({ texto: textoSpan, negrita: span.negrita, destacado: span.destacado });
         restantes -= usados;
       }
       if (spansRevelados.length > 0) resultado.push({ tipo: 'parrafo', spans: spansRevelados });

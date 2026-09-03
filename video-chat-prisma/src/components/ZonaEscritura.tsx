@@ -1,5 +1,6 @@
 import React from 'react';
 import { interpolate } from 'remotion';
+import { estadoTipeo } from '../guion';
 
 interface Props {
   frame: number;
@@ -217,27 +218,13 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
   );
 }
 
-function textoParcialPorCaracteres(texto: string, progreso: number) {
-  const n = Math.ceil(texto.length * Math.min(1, Math.max(0, progreso)));
-  return texto.slice(0, n);
-}
-
 export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiendo, progresoTeclado }) => {
-  const textoParcial = escribiendo ? textoParcialPorCaracteres(escribiendo.texto, escribiendo.progreso) : '';
+  // Una sola fuente de verdad (ritmo humano, no lineal) para el texto
+  // parcial Y la tecla activa del teclado — así nunca se desincronizan.
+  const { textoVisible: textoParcial, letraActiva, faseActiva: faseCaracter } = escribiendo
+    ? estadoTipeo(escribiendo.texto, escribiendo.progreso)
+    : { textoVisible: '', letraActiva: null, faseActiva: 0 };
   const cursorVisible = Math.floor(frame / 12) % 2 === 0;
-
-  // A qué letra le "toca" estar presionada ahora mismo, derivado del progreso
-  // real de tipeo (no un contador arbitrario) — así la tecla que se levanta
-  // es siempre la que realmente se está escribiendo en el mensaje.
-  let letraActiva: string | null = null;
-  let faseCaracter = 0;
-  if (escribiendo && escribiendo.texto.length > 0) {
-    const L = escribiendo.texto.length;
-    const posicion = Math.min(L - 0.0001, escribiendo.progreso * L);
-    const indice = Math.max(0, Math.floor(posicion));
-    faseCaracter = posicion - indice;
-    letraActiva = escribiendo.texto[indice].toUpperCase();
-  }
 
   const estadoBoton: 'idle' | 'escribiendo' | 'respondiendo' = escribiendo ? 'escribiendo' : respondiendo ? 'respondiendo' : 'idle';
 

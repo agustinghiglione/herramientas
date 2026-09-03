@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { parsearGuion, eventoEnFrame, progresoTeclado } from './guion';
 import { ChatGPTHeader } from './components/ChatGPTHeader';
+import { StatusBarOS } from './components/StatusBarOS';
 import { ListaMensajes } from './components/ListaMensajes';
 import { SugerenciasInicio } from './components/SugerenciasInicio';
 import { ZonaEscritura } from './components/ZonaEscritura';
@@ -14,7 +15,7 @@ const AUDIO_ENVIA = 'audio/son_duquotidient-message-envoye-iphone-apple-391098.m
 const AUDIO_CAPTURA = 'audio/peggy_marco-screenshot-iphone-sound-336170.mp3';
 
 export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
 
   const { eventos, mensajesComprometidos } = useMemo(() => parsearGuion(guionTexto, fps), [guionTexto, fps]);
@@ -63,13 +64,24 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
     return null;
   });
 
+  // Zoom in casi imperceptible a lo largo de todo el video — sin esto la
+  // cámara se siente demasiado "clavada", como una captura de pantalla fija
+  // en vez de un video. Un truco de producción, no de la UI en sí.
+  const escala = interpolate(frame, [0, Math.max(1, durationInFrames)], [1, 1.018], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
   if (eventoActual?.accion.tipo === 'banner') {
     const progreso = (frame - eventoActual.desde) / (eventoActual.hasta - eventoActual.desde);
     return (
-      <>
-        <BannerFinal texto={eventoActual.accion.texto} progreso={progreso} />
+      <AbsoluteFill style={{ backgroundColor: '#0d0d0d' }}>
+        <AbsoluteFill style={{ transform: `scale(${escala})` }}>
+          <BannerFinal texto={eventoActual.accion.texto} progreso={progreso} />
+        </AbsoluteFill>
+        <Vinieta />
         {capaAudio}
-      </>
+      </AbsoluteFill>
     );
   }
 
@@ -102,21 +114,37 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
   const mostrarSugerencias = !conversacionIniciada && !escribiendo;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#212121' }}>
-      <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
-      {mostrarSugerencias ? (
-        <SugerenciasInicio />
-      ) : (
-        <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
-      )}
-      <ZonaEscritura
-        frame={frame}
-        escribiendo={escribiendo}
-        respondiendo={respondiendoAhora}
-        progresoTeclado={progresoTeclado(frame, eventos)}
-      />
-      {enCaptura && <Captura progreso={progresoCaptura} />}
+    <AbsoluteFill style={{ backgroundColor: '#0d0d0d' }}>
+      <AbsoluteFill style={{ backgroundColor: '#0d0d0d', transform: `scale(${escala})` }}>
+        <StatusBarOS />
+        <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
+        {mostrarSugerencias ? (
+          <SugerenciasInicio />
+        ) : (
+          <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
+        )}
+        <ZonaEscritura
+          frame={frame}
+          escribiendo={escribiendo}
+          respondiendo={respondiendoAhora}
+          progresoTeclado={progresoTeclado(frame, eventos)}
+        />
+        {enCaptura && <Captura progreso={progresoCaptura} />}
+      </AbsoluteFill>
+      <Vinieta />
       {capaAudio}
     </AbsoluteFill>
   );
 };
+
+/** Sombreado sutil en las esquinas, tipo brillo de panel OLED de un celular real — fijo, no se escala con el zoom de cámara. */
+function Vinieta() {
+  return (
+    <AbsoluteFill
+      style={{
+        background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.5) 100%)',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}

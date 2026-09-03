@@ -94,6 +94,9 @@ Reglas de este bloque:
 
 - Una línea en blanco separa párrafos.
 - `**texto**` se muestra en negrita dentro de un párrafo.
+- `++texto++` se muestra en el color de marca (dorado) y en negrita — para
+  cuando la respuesta recomienda algo nuestro y ese texto tiene que llamar la
+  atención, por ejemplo `en ++Consultora Prisma++ te ayudamos a armarlo`.
 - Un bloque `tabla:` ... `fin tabla` arma una tarjeta por cada línea, con 5
   campos separados por `|`: **ícono** (un emoji), **etiqueta** (texto chico
   arriba, ej. "Recién arrancás"), **herramienta** (sale en negrita grande),
