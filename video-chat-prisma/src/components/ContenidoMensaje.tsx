@@ -63,7 +63,7 @@ function TarjetaFila({ icono, etiqueta, herramienta, porque, fuente }: { icono: 
       </div>
       <div style={{ fontSize: 35, fontWeight: 700, color: '#FFFFFF', marginBottom: 12 }}>{herramienta}</div>
       {porque && (
-        <div style={{ fontSize: 28, lineHeight: 1.4, color: '#D1D1D1', marginBottom: fuente ? 17 : 0 }}>
+        <div style={{ fontSize: 28, fontWeight: 500, lineHeight: 1.4, color: '#E1E1E1', marginBottom: fuente ? 17 : 0 }}>
           {porque}
         </div>
       )}
@@ -117,7 +117,10 @@ export const ContenidoMensaje: React.FC<{ bloques: BloqueContenido[]; variante?:
         b.tipo === 'parrafo' ? (
           <Parrafo key={i} spans={b.spans} colorBase={colorBase} />
         ) : (
-          <div key={i} style={{ marginBottom: 22 }}>
+          // +20px de aire extra debajo de las tarjetas (pedido del experto)
+          // para que respiren antes de la barra de entrada: 22px que ya
+          // tenía este bloque + 20px = 42px.
+          <div key={i} style={{ marginBottom: 42 }}>
             {b.filas.map((f, j) => (
               <TarjetaFila key={j} {...f} />
             ))}
