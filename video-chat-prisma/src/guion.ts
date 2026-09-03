@@ -88,7 +88,20 @@ export interface GuionParseado {
 
 // Duraciones fijas para acciones que no llevan tiempo explícito en el guion.
 const DURACION_ENVIA_SEG = 0.5; // coincide con el audio de "mensaje enviado"
-const DURACION_CAPTURA_SEG = 1.8; // apenas más que el audio de screenshot (1.72s)
+
+// El evento "captura" tiene dos tiempos: primero una pausa de lectura sobre
+// el chat ya terminado (se mira la respuesta un segundo antes de "sacar la
+// captura"), y recién después el flash + sonido de screenshot, justo antes
+// de que entre el banner — no al revés (antes el flash saltaba apenas
+// terminaba el chat, y la pausa quedaba DESPUÉS del flash, con el banner
+// recién entrando al final de esa pausa).
+export const ESPERA_CAPTURA_SEG = 1; // pausa antes del flash, mirando el chat ya terminado
+const DURACION_FLASH_CAPTURA_SEG = 0.5; // flash breve — el banner corta enseguida después
+export const DURACION_CAPTURA_SEG = ESPERA_CAPTURA_SEG + DURACION_FLASH_CAPTURA_SEG;
+// Fracción del evento "captura" en la que arranca el flash — la comparten el
+// audio (ChatVideo.tsx) y el destello visual (Captura.tsx) para que nunca
+// queden desincronizados entre sí.
+export const FRACCION_ESPERA_CAPTURA = ESPERA_CAPTURA_SEG / DURACION_CAPTURA_SEG;
 
 // Cuántas "unidades" de revelado vale una fila de tabla, comparado con una
 // palabra suelta de un párrafo — así una tabla no aparece de golpe ni tarda

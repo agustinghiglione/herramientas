@@ -4,15 +4,15 @@ const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
 function IconoHistorial() {
   return (
-    <svg width="36" height="26" viewBox="0 0 22 16" fill="none">
-      <path d="M1 1H21M1 8H21M1 15H21" stroke="#ececec" strokeWidth="2" strokeLinecap="round" />
+    <svg width="40" height="30" viewBox="0 0 22 16" fill="none">
+      <path d="M1 1H21M1 8H21M1 15H21" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" />
     </svg>
   );
 }
 
 function IconoRefresh() {
   return (
-    <svg width="30" height="30" viewBox="0 0 20 20" fill="none">
+    <svg width="36" height="36" viewBox="0 0 20 20" fill="none">
       <path
         d="M17 4V8H13M3 16V12H7M4.5 7.5C5.4 5 7.7 3.2 10.4 3C13.6 2.8 16.4 4.8 17.3 7.7M15.5 12.5C14.6 15 12.3 16.8 9.6 17C6.4 17.2 3.6 15.2 2.7 12.3"
         stroke="#ececec"
@@ -24,13 +24,16 @@ function IconoRefresh() {
   );
 }
 
+/** El lápiz y los tres puntos van en blanco puro (no la opacidad suave de sus
+ * botones contenedores) — a esta escala, con opacidad reducida se leen como
+ * "puntitos diminutos" en vez de íconos claros. */
 function IconoLapiz() {
   return (
-    <svg width="30" height="30" viewBox="0 0 20 20" fill="none">
+    <svg width="38" height="38" viewBox="0 0 20 20" fill="none">
       <path
         d="M13.5 2.5L17.5 6.5L7 17H3V13L13.5 2.5Z"
-        stroke="#ececec"
-        strokeWidth="1.6"
+        stroke="#FFFFFF"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
     </svg>
@@ -39,10 +42,10 @@ function IconoLapiz() {
 
 function IconoMas() {
   return (
-    <svg width="30" height="10" viewBox="0 0 20 6" fill="none">
-      <circle cx="3" cy="3" r="2.4" fill="#ececec" />
-      <circle cx="10" cy="3" r="2.4" fill="#ececec" />
-      <circle cx="17" cy="3" r="2.4" fill="#ececec" />
+    <svg width="38" height="12" viewBox="0 0 20 6" fill="none">
+      <circle cx="3" cy="3" r="2.6" fill="#FFFFFF" />
+      <circle cx="10" cy="3" r="2.6" fill="#FFFFFF" />
+      <circle cx="17" cy="3" r="2.6" fill="#FFFFFF" />
     </svg>
   );
 }
@@ -53,12 +56,13 @@ function IconoMas() {
  * mínima de conversación (lápiz de chat nuevo + más opciones) después. El
  * título "ChatGPT" fijo no existe en ninguno de los dos — así es la app real.
  *
- * Medidas según la ronda de ajuste de escala del experto (la UI se veía
- * "chica" comparada con un iPhone real, por relación de aspecto/densidad):
- * barra a 110px de alto, botones circulares de 76x76px, el de menú
- * (hamburguesa) con fondo sólido #1A1A1A — los demás (refresh, lápiz+más)
- * mantienen la opacidad suave, que es como se ven en la referencia real
- * cuando no son el ícono de navegación principal.
+ * Medidas según las rondas de ajuste de escala del experto: barra a 110px
+ * de alto, botones circulares de 76x76px, el de menú (hamburguesa) con
+ * fondo sólido #1A1A1A. El CONTENEDOR de los botones de refresh/lápiz+más
+ * mantiene la opacidad suave (así se ven en la referencia real cuando no
+ * son el ícono de navegación principal), pero los ÍCONOS en sí van en
+ * blanco puro y más grandes (36-40px) — a esta escala, con el ícono
+ * también en opacidad reducida se leían como "puntitos diminutos".
  */
 export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ conversacionIniciada }) => {
   return (
@@ -102,14 +106,14 @@ export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ con
                 borderRadius: 22,
                 padding: '11px 29px',
                 color: '#ececec',
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: 600,
                 fontFamily: FUENTE_SISTEMA,
               }}
             >
               Chat
             </div>
-            <div style={{ padding: '11px 29px', color: 'rgba(236,236,236,0.55)', fontSize: 22, fontFamily: FUENTE_SISTEMA }}>
+            <div style={{ padding: '11px 29px', color: 'rgba(236,236,236,0.55)', fontSize: 24, fontFamily: FUENTE_SISTEMA }}>
               Work
             </div>
           </div>

@@ -108,9 +108,9 @@ function IconoBackspace() {
 function IconoGlobo() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9.5" stroke="#ececec" strokeWidth="1.4" />
-      <ellipse cx="12" cy="12" rx="4" ry="9.5" stroke="#ececec" strokeWidth="1.4" />
-      <path d="M2.5 12H21.5M3.6 7.5H20.4M3.6 16.5H20.4" stroke="#ececec" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="9.5" stroke="#ececec" strokeWidth="1.55" />
+      <ellipse cx="12" cy="12" rx="4" ry="9.5" stroke="#ececec" strokeWidth="1.55" />
+      <path d="M2.5 12H21.5M3.6 7.5H20.4M3.6 16.5H20.4" stroke="#ececec" strokeWidth="1.55" />
     </svg>
   );
 }
@@ -125,13 +125,13 @@ function IconoMic() {
   );
 }
 
-/** Mismo ícono de micrófono, a la escala más grande del teclado (tecla inferior derecha). */
+/** Mismo ícono de micrófono, a la escala más grande del teclado (tecla inferior derecha) — trazo un 10% más grueso, igual que el globo, para que no se vea "fino" al lado de las teclas de letra. */
 function IconoMicTecla() {
   return (
     <svg width="33" height="43" viewBox="0 0 20 26" fill="none">
-      <rect x="6" y="1" width="8" height="15" rx="4" stroke="#ececec" strokeWidth="1.5" />
-      <path d="M2 12C2 17 5.6 20.5 10 20.5C14.4 20.5 18 17 18 12" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M10 20.5V25" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
+      <rect x="6" y="1" width="8" height="15" rx="4" stroke="#ececec" strokeWidth="1.65" />
+      <path d="M2 12C2 17 5.6 20.5 10 20.5C14.4 20.5 18 17 18 12" stroke="#ececec" strokeWidth="1.65" strokeLinecap="round" />
+      <path d="M10 20.5V25" stroke="#ececec" strokeWidth="1.65" strokeLinecap="round" />
     </svg>
   );
 }

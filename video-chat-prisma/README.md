@@ -56,7 +56,9 @@ banner (4s): Hacé el Diagnóstico Prisma gratis y descubrí en qué área de tu
   letra durante N segundos, con el teclado visible.
 - **`usuario envia`** — manda el mensaje (el teclado se esconde, suena el
   efecto de "mensaje enviado").
-- **`captura`** — flash blanco breve, simula una captura de pantalla.
+- **`captura`** — pausa de un segundo mirando la conversación ya terminada
+  y recién después un flash blanco breve que simula la captura de pantalla
+  (en ese orden: primero la pausa, después el flash — no al revés).
 - **`banner (Ns): texto`** — pantalla de cierre fija con la marca de
   Consultora Prisma y ese texto de promoción, durante N segundos. Normalmente
   va al final del guion.

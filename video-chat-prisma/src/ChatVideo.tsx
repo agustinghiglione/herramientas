@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
-import { parsearGuion, eventoEnFrame, progresoTeclado } from './guion';
+import { parsearGuion, eventoEnFrame, progresoTeclado, FRACCION_ESPERA_CAPTURA } from './guion';
 import { ChatGPTHeader } from './components/ChatGPTHeader';
 import { StatusBarOS } from './components/StatusBarOS';
 import { ListaMensajes } from './components/ListaMensajes';
@@ -14,6 +14,7 @@ const AUDIO_TECLADO = 'audio/u_a4gfvwagf1-iphone-keyboard-typing-sound-effect-33
 const AUDIO_TECLADO_DURACION_SEG = 22.7;
 const AUDIO_ENVIA = 'audio/son_duquotidient-message-envoye-iphone-apple-391098.mp3';
 const AUDIO_CAPTURA = 'audio/peggy_marco-screenshot-iphone-sound-336170.mp3';
+const AUDIO_CAPTURA_DURACION_SEG = 1.8; // duración real del click + su cola/reverb
 
 export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: boolean }> = ({
   guionTexto,
@@ -59,8 +60,15 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
       );
     }
     if (e.accion.tipo === 'captura') {
+      // El sonido de shutter arranca junto con el flash (después de la pausa
+      // de lectura previa), no al principio del evento — para que quede
+      // sincronizado con la imagen. Puede seguir sonando un poco después de
+      // que el evento visual termine (la cola del click se apaga de fondo ya
+      // con el banner en pantalla) — no molesta, es solo la resonancia.
+      const duracionEvento = e.hasta - e.desde;
+      const inicioFlash = e.desde + Math.round(duracionEvento * FRACCION_ESPERA_CAPTURA);
       return (
-        <Sequence key={i} from={e.desde} durationInFrames={e.hasta - e.desde}>
+        <Sequence key={i} from={inicioFlash} durationInFrames={Math.round(AUDIO_CAPTURA_DURACION_SEG * fps)}>
           <Audio src={staticFile(AUDIO_CAPTURA)} />
         </Sequence>
       );
