@@ -16,7 +16,7 @@ const COLOR_MARCA = '#e4b15e';
  */
 function Parrafo({ spans, colorBase }: { spans: { texto: string; negrita: boolean; destacado: boolean }[]; colorBase: string }) {
   return (
-    <p style={{ margin: '0 0 22px', fontSize: 30, lineHeight: 1.4, color: colorBase, fontFamily: FUENTE_SISTEMA }}>
+    <p style={{ margin: '0 0 24px', fontSize: 37, lineHeight: 1.35, color: colorBase, fontFamily: FUENTE_SISTEMA }}>
       {spans.map((s, i) => (
         <span
           key={i}
@@ -39,19 +39,19 @@ function TarjetaFila({ icono, etiqueta, herramienta, porque, fuente }: { icono: 
       style={{
         background: '#1E1E1E',
         border: '1px solid #2C2C2C',
-        borderRadius: 16,
-        padding: 24,
-        marginBottom: 18,
+        borderRadius: 19,
+        padding: 29,
+        marginBottom: 22,
         fontFamily: FUENTE_SISTEMA,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        {icono && <span style={{ fontSize: 24 }}>{icono}</span>}
-        <span style={{ fontSize: 22, color: '#A1A1A1' }}>{etiqueta}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+        {icono && <span style={{ fontSize: 29 }}>{icono}</span>}
+        <span style={{ fontSize: 26, color: '#A1A1A1' }}>{etiqueta}</span>
       </div>
-      <div style={{ fontSize: 26, fontWeight: 600, color: '#FFFFFF', marginBottom: 10 }}>{herramienta}</div>
+      <div style={{ fontSize: 31, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>{herramienta}</div>
       {porque && (
-        <div style={{ fontSize: 22, lineHeight: 1.45, color: '#A1A1A1', marginBottom: fuente ? 14 : 0 }}>
+        <div style={{ fontSize: 26, lineHeight: 1.45, color: '#A1A1A1', marginBottom: fuente ? 17 : 0 }}>
           {porque}
         </div>
       )}
@@ -60,29 +60,29 @@ function TarjetaFila({ icono, etiqueta, herramienta, porque, fuente }: { icono: 
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
             background: 'rgba(255,255,255,0.08)',
             borderRadius: 999,
-            padding: '6px 14px 6px 8px',
+            padding: '7px 17px 7px 10px',
           }}
         >
           <span
             style={{
-              width: 22,
-              height: 22,
+              width: 26,
+              height: 26,
               borderRadius: '50%',
               background: 'rgba(255,255,255,0.16)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               color: '#ececec',
             }}
           >
             IA
           </span>
-          <span style={{ fontSize: 18, color: '#666666' }}>{fuente}</span>
+          <span style={{ fontSize: 22, color: '#666666' }}>{fuente}</span>
         </div>
       )}
     </div>

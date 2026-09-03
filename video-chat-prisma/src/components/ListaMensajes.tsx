@@ -41,11 +41,11 @@ function BurbujaUsuario({ contenido, frame, frameDeAparicion }: { contenido: Blo
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 28 }}>
       <div
         style={{
-          maxWidth: '78%',
+          maxWidth: '85%',
           background: '#262626',
           color: '#ececec',
           borderRadius: 22,
-          padding: '18px 24px',
+          padding: '20px 28px',
           opacity,
           transform: `translateY(${translateY}px) scale(${scale})`,
           transformOrigin: 'bottom right',
@@ -139,11 +139,17 @@ export const ListaMensajes: React.FC<Props> = ({ frame, historial, respondiendo 
     <div
       style={{
         flex: 1,
-        padding: '36px 30px',
+        padding: '36px 32px',
         display: 'flex',
         flexDirection: 'column',
         // Los mensajes se anclan abajo y lo viejo se recorta arriba — así la
         // conversación se comporta como un chat real que hace scroll solo.
+        // Esto YA logra, sin transform/interpolate manual, lo mismo que pide
+        // un "translateY hacia arriba a medida que entra texto": el flex con
+        // justifyContent:flex-end recalcula solo, cuadro a cuadro, cuánto
+        // sube el bloque según la altura real del contenido — determinista
+        // (no depende de medir el DOM) y sin hardcodear frames de inicio/fin,
+        // así que se adapta a cualquier longitud de respuesta sin ajuste manual.
         justifyContent: 'flex-end',
         overflow: 'hidden',
         // Desvanecido superior tipo "vidrio esmerilado", igual al de la app

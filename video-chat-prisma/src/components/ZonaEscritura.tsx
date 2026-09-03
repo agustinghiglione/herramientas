@@ -13,7 +13,7 @@ interface Props {
 
 function IconoMas28() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
       <path d="M12 4V20M4 12H20" stroke="#A6A6A6" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
@@ -21,7 +21,7 @@ function IconoMas28() {
 
 function IconoOndas() {
   return (
-    <svg width="25" height="25" viewBox="0 0 22 22" fill="none">
+    <svg width="30" height="30" viewBox="0 0 22 22" fill="none">
       <rect x="1" y="8" width="3" height="6" rx="1.5" fill="#fff" />
       <rect x="6.5" y="4" width="3" height="14" rx="1.5" fill="#fff" />
       <rect x="12" y="0" width="3" height="22" rx="1.5" fill="#fff" />
@@ -32,7 +32,7 @@ function IconoOndas() {
 
 function IconoFlechaArriba() {
   return (
-    <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+    <svg width="34" height="34" viewBox="0 0 20 20" fill="none">
       <path d="M10 17V3M10 3L4 9M10 3L16 9" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -40,7 +40,7 @@ function IconoFlechaArriba() {
 
 function IconoDetener() {
   return (
-    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
       <rect x="0" y="0" width="16" height="16" rx="3" fill="#fff" />
     </svg>
   );
@@ -51,9 +51,9 @@ function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo
   return (
     <div
       style={{
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+        width: 76,
+        height: 76,
+        borderRadius: 38,
         background: '#007AFF',
         display: 'flex',
         alignItems: 'center',
@@ -76,7 +76,7 @@ function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo
  */
 function BotonMic() {
   return (
-    <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div style={{ width: 53, height: 53, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <IconoMic />
     </div>
   );
@@ -89,7 +89,7 @@ const FILA_3 = 'ZXCVBNM'.split('');
 /** Flecha de mayúsculas (⇧), dibujada a mano para no depender de fuentes de emoji. */
 function IconoShift() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <svg width="43" height="43" viewBox="0 0 24 24" fill="none">
       <path d="M12 3L21 12H16V19H8V12H3L12 3Z" fill="#ececec" />
     </svg>
   );
@@ -98,7 +98,7 @@ function IconoShift() {
 /** Ícono de borrar (⌫). */
 function IconoBackspace() {
   return (
-    <svg width="30" height="24" viewBox="0 0 30 24" fill="none">
+    <svg width="50" height="40" viewBox="0 0 30 24" fill="none">
       <path d="M9 1H27C28.1 1 29 1.9 29 3V21C29 22.1 28.1 23 27 23H9L1 12L9 1Z" stroke="#ececec" strokeWidth="1.6" strokeLinejoin="round" />
       <path d="M14 8L22 16M22 8L14 16" stroke="#ececec" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
@@ -107,7 +107,7 @@ function IconoBackspace() {
 
 function IconoGlobo() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9.5" stroke="#ececec" strokeWidth="1.4" />
       <ellipse cx="12" cy="12" rx="4" ry="9.5" stroke="#ececec" strokeWidth="1.4" />
       <path d="M2.5 12H21.5M3.6 7.5H20.4M3.6 16.5H20.4" stroke="#ececec" strokeWidth="1.4" />
@@ -117,7 +117,18 @@ function IconoGlobo() {
 
 function IconoMic() {
   return (
-    <svg width="20" height="26" viewBox="0 0 20 26" fill="none">
+    <svg width="24" height="31" viewBox="0 0 20 26" fill="none">
+      <rect x="6" y="1" width="8" height="15" rx="4" stroke="#ececec" strokeWidth="1.5" />
+      <path d="M2 12C2 17 5.6 20.5 10 20.5C14.4 20.5 18 17 18 12" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M10 20.5V25" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Mismo ícono de micrófono, a la escala más grande del teclado (tecla inferior derecha). */
+function IconoMicTecla() {
+  return (
+    <svg width="33" height="43" viewBox="0 0 20 26" fill="none">
       <rect x="6" y="1" width="8" height="15" rx="4" stroke="#ececec" strokeWidth="1.5" />
       <path d="M2 12C2 17 5.6 20.5 10 20.5C14.4 20.5 18 17 18 12" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M10 20.5V25" stroke="#ececec" strokeWidth="1.5" strokeLinecap="round" />
@@ -152,7 +163,7 @@ function Tecla({
   const fondo = variante === 'enviar' ? '#0a84ff' : variante === 'especial' ? '#232325' : presionada ? '#5a5a5d' : '#333335';
 
   return (
-    <div style={{ flex: ancho, margin: '0 3px', position: 'relative' }}>
+    <div style={{ flex: ancho, margin: '0 5px', position: 'relative' }}>
       {/* Burbuja ampliada que aparece sobre la tecla al tipear esa letra — el gesto icónico del teclado de iPhone. */}
       {variante === 'letra' && faseActiva !== null && (
         <div
@@ -163,18 +174,18 @@ function Tecla({
             // "Pop" rápido y con un poco de rebote (translateY(-10px) scale(1.2)
             // apenas se presiona), en vez de una entrada lenta — así se lee
             // como un golpe de tecla real, no como un fade suave.
-            transform: `translate(-50%, ${interpolate(faseActiva, [0, 0.08, 0.22], [10, -10, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px) scale(${interpolate(faseActiva, [0, 0.08, 0.22, 0.55, 0.75], [0.7, 1.2, 1, 1, 0.85], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
+            transform: `translate(-50%, ${interpolate(faseActiva, [0, 0.08, 0.22], [17, -17, -10], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px) scale(${interpolate(faseActiva, [0, 0.08, 0.22, 0.55, 0.75], [0.7, 1.2, 1, 1, 0.85], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
             opacity: interpolate(faseActiva, [0, 0.06, 0.6, 0.8], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
-            width: 78,
-            height: 94,
+            width: 130,
+            height: 156,
             background: '#59595c',
-            borderRadius: 14,
+            borderRadius: 23,
             boxShadow: '0 6px 14px rgba(0,0,0,0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#fff',
-            fontSize: 40,
+            fontSize: 66,
             fontWeight: 500,
             fontFamily: '-apple-system, "SF Pro Text", Inter, sans-serif',
             pointerEvents: 'none',
@@ -185,15 +196,15 @@ function Tecla({
       )}
       <div
         style={{
-          height: 100,
-          borderRadius: 10,
+          height: 165,
+          borderRadius: 17,
           background: fondo,
           boxShadow: presionada ? '0 1px 0 rgba(0,0,0,0.5)' : '0 2px 0 rgba(0,0,0,0.55)',
           color: '#ececec',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: variante === 'letra' ? 30 : 23,
+          fontSize: variante === 'letra' ? 50 : 38,
           fontWeight: variante === 'enviar' ? 600 : 400,
           fontFamily: '-apple-system, "SF Pro Text", Inter, sans-serif',
           transform: `translateY(${hundido * 3}px)`,
@@ -205,22 +216,26 @@ function Tecla({
   );
 }
 
+// Teclado escalado ~1.66x respecto a la versión anterior, para llegar a
+// los ~820px (42-43% del alto del canvas) que pidió el experto — en un
+// iPhone real el teclado ocupa mucha más proporción de pantalla que lo
+// que se ve en un mockup de escritorio.
 function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | null; faseCaracter: number }) {
   const fase = (l: string) => (letraActiva === l ? faseCaracter : null);
 
   return (
-    <div style={{ background: '#0c0c0d', padding: '18px 10px 34px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div style={{ display: 'flex', marginBottom: 14 }}>
+    <div style={{ background: '#0c0c0d', padding: '30px 17px 54px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', marginBottom: 23 }}>
         {FILA_1.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
         ))}
       </div>
-      <div style={{ display: 'flex', marginBottom: 14, padding: '0 33px' }}>
+      <div style={{ display: 'flex', marginBottom: 23, padding: '0 55px' }}>
         {FILA_2.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
         ))}
       </div>
-      <div style={{ display: 'flex', marginBottom: 14 }}>
+      <div style={{ display: 'flex', marginBottom: 23 }}>
         <Tecla contenido={<IconoShift />} faseActiva={null} ancho={1.5} variante="especial" />
         {FILA_3.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
@@ -231,7 +246,7 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
         <Tecla contenido="123" faseActiva={null} ancho={1.5} variante="especial" />
         <Tecla contenido={<IconoGlobo />} faseActiva={null} ancho={1.3} variante="especial" />
         <Tecla contenido="" faseActiva={fase(' ')} ancho={5.4} variante="especial" />
-        <Tecla contenido={<IconoMic />} faseActiva={null} ancho={1.3} variante="especial" />
+        <Tecla contenido={<IconoMicTecla />} faseActiva={null} ancho={1.3} variante="especial" />
       </div>
     </div>
   );
@@ -253,12 +268,12 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
         <div
           style={{
             background: '#171717',
-            borderRadius: 50,
-            height: 100,
+            borderRadius: 60,
+            height: 120,
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
-            padding: '0 16px 0 24px',
+            gap: 19,
+            padding: '0 19px 0 29px',
           }}
         >
           <IconoMas28 />
@@ -266,7 +281,7 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
             style={{
               flex: 1,
               color: escribiendo ? '#ececec' : '#737373',
-              fontSize: escribiendo ? 30 : 26,
+              fontSize: escribiendo ? 36 : 31,
               fontFamily: FUENTE_SISTEMA,
             }}
           >
