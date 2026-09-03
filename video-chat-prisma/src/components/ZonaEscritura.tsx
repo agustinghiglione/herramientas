@@ -11,7 +11,7 @@ interface Props {
 
 function IconoMas28() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
       <path d="M12 4V20M4 12H20" stroke="#ececec" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
@@ -19,7 +19,7 @@ function IconoMas28() {
 
 function IconoOndas() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <svg width="25" height="25" viewBox="0 0 22 22" fill="none">
       <rect x="1" y="8" width="3" height="6" rx="1.5" fill="#fff" />
       <rect x="6.5" y="4" width="3" height="14" rx="1.5" fill="#fff" />
       <rect x="12" y="0" width="3" height="22" rx="1.5" fill="#fff" />
@@ -30,7 +30,7 @@ function IconoOndas() {
 
 function IconoFlechaArriba() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <svg width="23" height="23" viewBox="0 0 20 20" fill="none">
       <path d="M10 17V3M10 3L4 9M10 3L16 9" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -38,7 +38,7 @@ function IconoFlechaArriba() {
 
 function IconoDetener() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
       <rect x="0" y="0" width="16" height="16" rx="3" fill="#fff" />
     </svg>
   );
@@ -49,9 +49,9 @@ function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo
   return (
     <div
       style={{
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         background: '#0a84ff',
         display: 'flex',
         alignItems: 'center',
@@ -62,6 +62,20 @@ function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo
       {estado === 'idle' && <IconoOndas />}
       {estado === 'escribiendo' && <IconoFlechaArriba />}
       {estado === 'respondiendo' && <IconoDetener />}
+    </div>
+  );
+}
+
+/**
+ * Botón de dictado por voz — sin fondo, a la izquierda del botón circular
+ * celeste. Solo aparece en reposo (antes de que el usuario empiece a
+ * escribir); la app real lo esconde apenas hay texto, dejando solo la
+ * flecha de enviar.
+ */
+function BotonMic() {
+  return (
+    <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <IconoMic />
     </div>
   );
 }
@@ -146,16 +160,16 @@ function Tecla({
             bottom: '100%',
             transform: `translate(-50%, ${interpolate(faseActiva, [0, 0.2], [10, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px) scale(${interpolate(faseActiva, [0, 0.2, 0.55, 0.75], [0.7, 1, 1, 0.85], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
             opacity: interpolate(faseActiva, [0, 0.1, 0.6, 0.8], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
-            width: 64,
-            height: 78,
+            width: 78,
+            height: 94,
             background: '#59595c',
-            borderRadius: 12,
+            borderRadius: 14,
             boxShadow: '0 6px 14px rgba(0,0,0,0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#fff',
-            fontSize: 34,
+            fontSize: 40,
             fontWeight: 500,
             fontFamily: '-apple-system, "SF Pro Text", Inter, sans-serif',
             pointerEvents: 'none',
@@ -166,15 +180,15 @@ function Tecla({
       )}
       <div
         style={{
-          height: 78,
-          borderRadius: 9,
+          height: 100,
+          borderRadius: 10,
           background: fondo,
           boxShadow: presionada ? '0 1px 0 rgba(0,0,0,0.5)' : '0 2px 0 rgba(0,0,0,0.55)',
           color: '#ececec',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: variante === 'letra' ? 25 : 20,
+          fontSize: variante === 'letra' ? 30 : 23,
           fontWeight: variante === 'enviar' ? 600 : 400,
           fontFamily: '-apple-system, "SF Pro Text", Inter, sans-serif',
           transform: `translateY(${hundido * 3}px)`,
@@ -190,18 +204,18 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
   const fase = (l: string) => (letraActiva === l ? faseCaracter : null);
 
   return (
-    <div style={{ background: '#0c0c0d', padding: '14px 8px 22px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div style={{ display: 'flex', marginBottom: 10 }}>
+    <div style={{ background: '#0c0c0d', padding: '18px 10px 34px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', marginBottom: 14 }}>
         {FILA_1.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
         ))}
       </div>
-      <div style={{ display: 'flex', marginBottom: 10, padding: '0 27px' }}>
+      <div style={{ display: 'flex', marginBottom: 14, padding: '0 33px' }}>
         {FILA_2.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
         ))}
       </div>
-      <div style={{ display: 'flex', marginBottom: 10 }}>
+      <div style={{ display: 'flex', marginBottom: 14 }}>
         <Tecla contenido={<IconoShift />} faseActiva={null} ancho={1.5} variante="especial" />
         {FILA_3.map((l) => (
           <Tecla key={l} contenido={l} faseActiva={fase(l)} />
@@ -230,16 +244,16 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
 
   return (
     <div style={{ marginTop: 'auto' }}>
-      <div style={{ padding: '0 28px 18px' }}>
+      <div style={{ padding: '0 28px 20px' }}>
         <div
           style={{
             background: '#2f2f2f',
-            borderRadius: 30,
-            minHeight: 76,
+            borderRadius: 32,
+            minHeight: 86,
             display: 'flex',
             alignItems: 'center',
             gap: 16,
-            padding: '0 16px 0 22px',
+            padding: '0 16px 0 24px',
           }}
         >
           <IconoMas28 />
@@ -247,7 +261,7 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
             style={{
               flex: 1,
               color: escribiendo ? '#ececec' : 'rgba(236,236,236,0.4)',
-              fontSize: 28,
+              fontSize: 30,
               fontFamily: 'Inter, sans-serif',
             }}
           >
@@ -257,19 +271,24 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
                 {cursorVisible ? '▍' : ''}
               </span>
             ) : (
-              'Enviar un mensaje'
+              'Preguntar a ChatGPT'
             )}
           </div>
+          {/* El dictado por voz solo tiene sentido antes de que haya texto — igual que la app real, desaparece apenas se empieza a escribir. */}
+          {estadoBoton === 'idle' && <BotonMic />}
           <BotonEnvio estado={estadoBoton} />
         </div>
       </div>
-      <div
-        style={{
-          transform: `translateY(${(1 - progresoTeclado) * 100}%)`,
-          opacity: progresoTeclado,
-        }}
-      >
-        <TecladoVirtual letraActiva={letraActiva} faseCaracter={faseCaracter} />
+      {/*
+        El teclado colapsa animando su ALTURA real (truco de "grid-template-rows:
+        0fr -> 1fr"), no solo un translateY/opacity — así, cuando se esconde,
+        el espacio que ocupaba se libera de verdad en el layout y la burbuja de
+        mensaje de arriba baja para recuperarlo, tal como en un teléfono real.
+      */}
+      <div style={{ display: 'grid', gridTemplateRows: `${progresoTeclado}fr`, opacity: progresoTeclado }}>
+        <div style={{ overflow: 'hidden' }}>
+          <TecladoVirtual letraActiva={letraActiva} faseCaracter={faseCaracter} />
+        </div>
       </div>
     </div>
   );

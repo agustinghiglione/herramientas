@@ -1,21 +1,18 @@
-# Guion activo — este es el que se renderiza con "npm start" / "npm run render".
-# Para probar otro video, reemplazá el contenido de este archivo por un guion
-# nuevo con el mismo formato (ver README.md) y volvé a correr el comando.
-
-esperar (1.2s)
-usuario escribe (2.4s): che, ¿qué uso para controlar los gastos del negocio sin volverme loco?
+# ===================================================================
+# GUION OFICIAL 01 — Prisma / La Charla que Vende (versión TikTok, ~12s)
+# ===================================================================
+esperar (0.3s)
+usuario escribe (1.9s): trabajo todo el día y no avanzo
 usuario envia
-chat responde (7s):
-Depende de cuánto movimiento tengas, pero en general hay tres caminos que funcionan bien.
+chat responde (5.5s):
+Che, le pasa a la mayoría de los dueños de pyme: mucho movimiento, pero nadie mide si eso es resultado.
 
-Para **la mayoría de los negocios chicos**, así los ordenaría hoy:
+Sinceramente, si yo fuera vos y quisiera que esto sea más fácil, no lo pensaría dos veces:
 
 tabla:
-📋 | Recién arrancás | Planilla simple | Rápida de armar y entendés cada peso que entra y sale. | Guía Prisma
-📱 | Ya tenés movimiento diario | App de gestión | Categoriza gastos solo y te avisa si algo se te va de rango. | Guía Prisma
-🧾 | Impuestos y balances | Tu contador | Nadie reemplaza el criterio profesional a la hora de presentar todo. | Guía Prisma
+🧩 | Para ubicarte ya | Diagnóstico Prisma® | Te dice gratis qué área te frena | consultoraprisma.digital
+🤝 | Para resolverlo con ayuda | Consultora Prisma | Te ordenan el proceso con vos | consultoraprisma.digital
 fin tabla
 ---
-chat responde (3.4s): Lo importante es que sea algo que realmente vayas a usar todas las semanas. Si querés arrancar ordenado desde cero, en ++Consultora Prisma++ te ayudamos a armarlo bien la primera vez.
 captura
-banner (4s): Hacé el Diagnóstico Prisma gratis y descubrí en qué área de tu negocio conviene empezar.
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital
