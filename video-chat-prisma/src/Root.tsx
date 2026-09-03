@@ -26,14 +26,20 @@ export const RemotionRoot: React.FC = () => {
       width={ANCHO}
       height={ALTO}
       durationInFrames={300}
-      defaultProps={{ guionTexto: '' }}
+      defaultProps={{ guionTexto: '', bannerImagenDisponible: false }}
       calculateMetadata={async () => {
         const res = await fetch(staticFile('guiones/actual.txt'));
         const guionTexto = await res.text();
         const { duracionTotal } = parsearGuion(guionTexto, FPS);
+        // El banner final ahora es una imagen ya diseñada (ver
+        // public/banners/actual.png) — se chequea acá, en Node, si existe
+        // antes de renderizar. Si todavía no se subió ninguna, ChatVideo usa
+        // el banner de texto programático como respaldo, para no romper el
+        // render mientras el banner definitivo se sigue trabajando aparte.
+        const resBanner = await fetch(staticFile('banners/actual.png'));
         return {
           durationInFrames: duracionTotal,
-          props: { guionTexto },
+          props: { guionTexto, bannerImagenDisponible: resBanner.ok },
         };
       }}
     />

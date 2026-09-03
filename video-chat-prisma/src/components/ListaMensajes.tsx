@@ -42,7 +42,7 @@ function BurbujaUsuario({ contenido, frame, frameDeAparicion }: { contenido: Blo
       <div
         style={{
           maxWidth: '78%',
-          background: '#2f2f2f',
+          background: '#262626',
           color: '#ececec',
           borderRadius: 22,
           padding: '18px 24px',
@@ -51,7 +51,7 @@ function BurbujaUsuario({ contenido, frame, frameDeAparicion }: { contenido: Blo
           transformOrigin: 'bottom right',
         }}
       >
-        <ContenidoMensaje bloques={contenido} />
+        <ContenidoMensaje bloques={contenido} variante="usuario" />
       </div>
     </div>
   );

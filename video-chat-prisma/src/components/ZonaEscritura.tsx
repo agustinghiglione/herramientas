@@ -2,6 +2,8 @@ import React from 'react';
 import { interpolate } from 'remotion';
 import { estadoTipeo } from '../guion';
 
+const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
+
 interface Props {
   frame: number;
   escribiendo: { texto: string; progreso: number } | null;
@@ -11,8 +13,8 @@ interface Props {
 
 function IconoMas28() {
   return (
-    <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
-      <path d="M12 4V20M4 12H20" stroke="#ececec" strokeWidth="2" strokeLinecap="round" />
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4V20M4 12H20" stroke="#A6A6A6" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -30,7 +32,7 @@ function IconoOndas() {
 
 function IconoFlechaArriba() {
   return (
-    <svg width="23" height="23" viewBox="0 0 20 20" fill="none">
+    <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
       <path d="M10 17V3M10 3L4 9M10 3L16 9" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -52,7 +54,7 @@ function BotonEnvio({ estado }: { estado: 'idle' | 'escribiendo' | 'respondiendo
         width: 64,
         height: 64,
         borderRadius: 32,
-        background: '#0a84ff',
+        background: '#007AFF',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -158,8 +160,11 @@ function Tecla({
             position: 'absolute',
             left: '50%',
             bottom: '100%',
-            transform: `translate(-50%, ${interpolate(faseActiva, [0, 0.2], [10, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px) scale(${interpolate(faseActiva, [0, 0.2, 0.55, 0.75], [0.7, 1, 1, 0.85], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
-            opacity: interpolate(faseActiva, [0, 0.1, 0.6, 0.8], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+            // "Pop" rápido y con un poco de rebote (translateY(-10px) scale(1.2)
+            // apenas se presiona), en vez de una entrada lenta — así se lee
+            // como un golpe de tecla real, no como un fade suave.
+            transform: `translate(-50%, ${interpolate(faseActiva, [0, 0.08, 0.22], [10, -10, -6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}px) scale(${interpolate(faseActiva, [0, 0.08, 0.22, 0.55, 0.75], [0.7, 1.2, 1, 1, 0.85], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
+            opacity: interpolate(faseActiva, [0, 0.06, 0.6, 0.8], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
             width: 78,
             height: 94,
             background: '#59595c',
@@ -247,9 +252,9 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
       <div style={{ padding: '0 28px 20px' }}>
         <div
           style={{
-            background: '#2f2f2f',
-            borderRadius: 32,
-            minHeight: 86,
+            background: '#171717',
+            borderRadius: 50,
+            height: 100,
             display: 'flex',
             alignItems: 'center',
             gap: 16,
@@ -260,9 +265,9 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
           <div
             style={{
               flex: 1,
-              color: escribiendo ? '#ececec' : 'rgba(236,236,236,0.4)',
-              fontSize: 30,
-              fontFamily: 'Inter, sans-serif',
+              color: escribiendo ? '#ececec' : '#737373',
+              fontSize: escribiendo ? 30 : 26,
+              fontFamily: FUENTE_SISTEMA,
             }}
           >
             {escribiendo ? (

@@ -8,13 +8,17 @@ import { SugerenciasInicio } from './components/SugerenciasInicio';
 import { ZonaEscritura } from './components/ZonaEscritura';
 import { Captura } from './components/Captura';
 import { BannerFinal } from './components/BannerFinal';
+import { BannerImagen } from './components/BannerImagen';
 
 const AUDIO_TECLADO = 'audio/u_a4gfvwagf1-iphone-keyboard-typing-sound-effect-336778.mp3';
 const AUDIO_TECLADO_DURACION_SEG = 22.7;
 const AUDIO_ENVIA = 'audio/son_duquotidient-message-envoye-iphone-apple-391098.mp3';
 const AUDIO_CAPTURA = 'audio/peggy_marco-screenshot-iphone-sound-336170.mp3';
 
-export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
+export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: boolean }> = ({
+  guionTexto,
+  bannerImagenDisponible,
+}) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
 
@@ -74,6 +78,18 @@ export const ChatVideo: React.FC<{ guionTexto: string }> = ({ guionTexto }) => {
 
   if (eventoActual?.accion.tipo === 'banner') {
     const progreso = (frame - eventoActual.desde) / (eventoActual.hasta - eventoActual.desde);
+    // El banner definitivo es una imagen ya diseñada (public/banners/actual.png).
+    // Si todavía no se subió ninguna, se cae al banner de texto programático
+    // como respaldo — así el render nunca se rompe mientras se sigue
+    // trabajando el diseño del banner por su cuenta.
+    if (bannerImagenDisponible) {
+      return (
+        <AbsoluteFill style={{ backgroundColor: '#000' }}>
+          <BannerImagen progreso={progreso} />
+          {capaAudio}
+        </AbsoluteFill>
+      );
+    }
     return (
       <AbsoluteFill style={{ backgroundColor: '#0d0d0d' }}>
         <AbsoluteFill style={{ transform: `scale(${escala})` }}>

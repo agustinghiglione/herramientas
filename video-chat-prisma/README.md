@@ -112,6 +112,25 @@ Reglas de este bloque:
 - Se pueden mezclar ambas formas en el mismo guion: alguna respuesta corta de
   una línea, y otras en bloque largo con tabla.
 
+## Banner final
+
+El `banner (Ns): texto` del guion ya no arma el cierre con código — usa
+directamente una imagen ya diseñada (formato 1080x1920, igual que la
+composición). Flujo de trabajo:
+
+1. El diseño del banner se hace aparte (no en este repo).
+2. Una vez aprobado, se copia a `public/banners/actual.png` — siempre con
+   ese nombre exacto, reemplazando el anterior (mismo criterio que
+   `guiones/actual.txt`: el archivo activo es siempre el que se llama
+   `actual`).
+3. El `texto` que sigue llevando la línea `banner (Ns): texto` en el guion
+   ya no se muestra — la imagen ya trae todo el diseño y el copy. Solo se
+   usa como respaldo si por algún motivo `public/banners/actual.png`
+   todavía no existe (ahí sí se arma un banner de texto simple con ese
+   contenido, para que el render nunca se rompa).
+4. La duración (`Ns`) sigue siendo la del guion — por ejemplo `captura` +
+   `banner (1s): ...` para el clásico "screenshot y banner de un segundo".
+
 ## Plantillas
 
 Hoy solo existe la composición `ChatVideo` (`src/Root.tsx`), estilo ChatGPT.
