@@ -1,5 +1,6 @@
 import React from 'react';
 import { interpolate } from 'remotion';
+import { Smile, Mic } from 'lucide-react';
 import { estadoTipeo } from '../guion';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
@@ -118,17 +119,6 @@ function IconoMic() {
   );
 }
 
-/** Mismo ícono de micrófono, a la escala más grande del teclado (tecla inferior derecha) — trazo un 10% más grueso, igual que el globo, para que no se vea "fino" al lado de las teclas de letra. */
-function IconoMicTecla() {
-  return (
-    <svg width="33" height="43" viewBox="0 0 20 26" fill="none">
-      <rect x="6" y="1" width="8" height="15" rx="4" stroke="#ececec" strokeWidth="1.65" />
-      <path d="M2 12C2 17 5.6 20.5 10 20.5C14.4 20.5 18 17 18 12" stroke="#ececec" strokeWidth="1.65" strokeLinecap="round" />
-      <path d="M10 20.5V25" stroke="#ececec" strokeWidth="1.65" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 /**
  * Una tecla estilo iOS: rectángulo redondeado con sombra de "borde inferior"
  * (como las teclas físicas del teclado de iPhone), que se levanta y muestra
@@ -214,6 +204,10 @@ function Tecla({
  * teclas — así se ve un teclado de iPhone real, nunca las teclas empiezan
  * pegadas contra el input. Tres celdas fijas con la marca (para este video
  * en particular), separadas por divisores finos.
+ *
+ * Fondo IDÉNTICO al del cuerpo del teclado (#2C2C2E) — no es un contenedor
+ * propio con su propio color/esquinas, se funde con el teclado; lo único
+ * que la separa en celdas son las dos líneas divisorias ultra finas.
  */
 function BarraPredictiva() {
   const PALABRAS = ['consultora', 'prisma', 'digital'];
@@ -223,9 +217,7 @@ function BarraPredictiva() {
         height: 50,
         display: 'flex',
         alignItems: 'stretch',
-        background: '#1C1C1E',
-        borderRadius: '14px 14px 0 0',
-        overflow: 'hidden',
+        background: '#2C2C2E',
       }}
     >
       {PALABRAS.map((palabra, i) => (
@@ -246,16 +238,57 @@ function BarraPredictiva() {
   );
 }
 
+/**
+ * Barra de navegación inferior (Home Dock) — franja propia, más oscura que
+ * el cuerpo del teclado, que vive DEBAJO de la fila de espacio (no es parte
+ * del cuerpo del teclado en sí). Aloja solo tres cosas, igual que en un
+ * iPhone real: el ícono de emoji a la izquierda, el indicador de inicio
+ * (home indicator) centrado, y el ícono de dictado a la derecha.
+ */
+function HomeDock() {
+  return (
+    <div
+      style={{
+        height: 90,
+        background: '#151515',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 46px',
+        position: 'relative',
+      }}
+    >
+      <Smile color="#8E8E93" size={32} />
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 140,
+          height: 5,
+          background: '#FFFFFF',
+          borderRadius: 100,
+        }}
+      />
+      <Mic color="#8E8E93" size={32} />
+    </div>
+  );
+}
+
 // Teclado escalado ~1.66x respecto a la versión anterior, para llegar a
 // los ~820px (42-43% del alto del canvas) que pidió el experto — en un
 // iPhone real el teclado ocupa mucha más proporción de pantalla que lo
 // que se ve en un mockup de escritorio.
 //
 // Layout en español (no en inglés): letras en minúscula (mayúscula fija
-// solo activa con ⇧), Ñ al final de la fila del medio, y carita sonriente
-// (acceso a emojis) en vez de globo terráqueo (cambio de idioma) abajo a
-// la izquierda — así es el teclado real de un iPhone configurado en
-// español, que es el idioma en el que "escribe" el usuario en el guion.
+// solo activa con ⇧), Ñ al final de la fila del medio.
+//
+// Anatomía en dos bloques verticales independientes, igual que un iPhone
+// real: el CUERPO del teclado (filas de letras + fila "123"/espacio, con
+// la barra predictiva arriba) termina en la fila de espacio — ya no lleva
+// el emoji ni el micrófono, esos íconos ahora viven en el HomeDock, la
+// franja propia de abajo (más oscura, con el home indicator centrado).
 function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | null; faseCaracter: number }) {
   // letraActiva siempre llega en MAYÚSCULA (así lo devuelve estadoTipeo, para
   // no depender de mayúsculas/minúsculas al comparar) — las teclas en sí se
@@ -264,9 +297,9 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
   const fase = (l: string) => (letraActiva === l ? faseCaracter : null);
 
   return (
-    <div style={{ background: '#0c0c0d', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ background: '#2C2C2E', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <BarraPredictiva />
-      <div style={{ padding: '14px 17px 54px' }}>
+      <div style={{ padding: '14px 17px 0' }}>
         <div style={{ display: 'flex', marginBottom: 23 }}>
           {FILA_1.map((l) => (
             <Tecla key={l} contenido={l.toLowerCase()} faseActiva={fase(l)} />
@@ -284,13 +317,12 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
           ))}
           <Tecla contenido={<IconoBackspace />} faseActiva={null} ancho={1.5} variante="especial" />
         </div>
-        <div style={{ display: 'flex' }}>
-          <Tecla contenido="123" faseActiva={null} ancho={1.5} variante="especial" />
-          <Tecla contenido="😀" faseActiva={null} ancho={1.3} variante="especial" />
-          <Tecla contenido="" faseActiva={fase(' ')} ancho={5.4} variante="especial" />
-          <Tecla contenido={<IconoMicTecla />} faseActiva={null} ancho={1.3} variante="especial" />
+        <div style={{ display: 'flex', marginBottom: 20 }}>
+          <Tecla contenido="123" faseActiva={null} ancho={2} variante="especial" />
+          <Tecla contenido="" faseActiva={fase(' ')} ancho={8} variante="especial" />
         </div>
       </div>
+      <HomeDock />
     </div>
   );
 }

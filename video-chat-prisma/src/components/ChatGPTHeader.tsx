@@ -1,4 +1,5 @@
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
@@ -108,7 +109,7 @@ export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ con
               gap: 10,
             }}
           >
-            <span style={{ fontSize: 24, lineHeight: 1 }}>✨</span>
+            <Sparkles color="#409CFF" size={28} style={{ flexShrink: 0 }} />
             <span style={{ color: '#409CFF', fontSize: 24, fontWeight: 600, fontFamily: FUENTE_SISTEMA, whiteSpace: 'nowrap' }}>
               Mejorar el plan
             </span>

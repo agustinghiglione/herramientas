@@ -147,8 +147,12 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
   const mostrarSugerencias = !conversacionIniciada;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#0d0d0d' }}>
-      <AbsoluteFill style={{ backgroundColor: '#0d0d0d', transform: `scale(${escala})` }}>
+    // Raíz del canvas explícita a 100% ancho/alto, pegada a (0,0) y con
+    // overflow:hidden — así el frame ocupa el 100% de los 1080x1920 sin
+    // franjas vacías a los costados en ningún reproductor, sin depender
+    // únicamente de los valores por defecto de AbsoluteFill.
+    <AbsoluteFill style={{ backgroundColor: '#0d0d0d', width: '100%', height: '100%', top: 0, left: 0, overflow: 'hidden' }}>
+      <AbsoluteFill style={{ backgroundColor: '#0d0d0d', transform: `scale(${escala})`, overflow: 'hidden' }}>
         <StatusBarOS />
         <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
         {mostrarSugerencias ? (
