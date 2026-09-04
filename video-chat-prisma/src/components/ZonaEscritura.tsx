@@ -331,7 +331,11 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
 
   return (
     <div style={{ marginTop: 'auto' }}>
-      <div style={{ padding: '0 28px 20px' }}>
+      {/* Espacio inferior subido de 20 a 46px — contra una captura real de
+          referencia, el campo de texto no queda pegado al borde de abajo,
+          deja un leve margen (más notorio todavía cuando el teclado está
+          escondido y no hay nada debajo que lo empuje). */}
+      <div style={{ padding: '0 28px 46px' }}>
         <div
           style={{
             background: '#171717',

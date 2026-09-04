@@ -28,6 +28,11 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
   // banner, más abajo) — si no, React se queja de "more hooks than during
   // the previous render" apenas la rama que hace early-return se activa.
   const primerEventoEscribe = useMemo(() => eventos.find((e) => e.accion.tipo === 'escribe'), [eventos]);
+  // El primer "usuario envia" es el momento exacto en que la pantalla pasa
+  // de "inicio" a "conversación" — ahí arranca (una sola vez, para siempre)
+  // la transición del header, en la misma ventana de frames en que el
+  // teclado se esconde (progresoTeclado ya colapsa justo en ese punto).
+  const primerEventoEnvia = useMemo(() => eventos.find((e) => e.accion.tipo === 'envia'), [eventos]);
 
   const historial = mensajesComprometidos.filter((m) => m.frame <= frame);
 
@@ -146,6 +151,17 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
   // respuesta en curso), así que no hay conflicto visual entre los dos.
   const mostrarSugerencias = !conversacionIniciada;
 
+  // Progreso (0 a 1) de la transición del header — 10 frames, la misma
+  // ventana que usa el teclado para colapsar, así ambas animaciones se
+  // sienten como una sola transición coordinada, no dos cosas por separado.
+  const FRAMES_TRANSICION_HEADER = 10;
+  const progresoHeaderTransicion = primerEventoEnvia
+    ? interpolate(frame, [primerEventoEnvia.desde, primerEventoEnvia.desde + FRAMES_TRANSICION_HEADER], [0, 1], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      })
+    : 0;
+
   return (
     // Raíz del canvas explícita a 100% ancho/alto, pegada a (0,0) y con
     // overflow:hidden — así el frame ocupa el 100% de los 1080x1920 sin
@@ -154,7 +170,7 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
     <AbsoluteFill style={{ backgroundColor: '#0d0d0d', width: '100%', height: '100%', top: 0, left: 0, overflow: 'hidden' }}>
       <AbsoluteFill style={{ backgroundColor: '#0d0d0d', transform: `scale(${escala})`, overflow: 'hidden' }}>
         <StatusBarOS />
-        <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
+        <ChatGPTHeader progreso={progresoHeaderTransicion} />
         {mostrarSugerencias ? (
           <SugerenciasInicio frame={frame} frameFadeOut={primerEventoEscribe?.desde} />
         ) : (
