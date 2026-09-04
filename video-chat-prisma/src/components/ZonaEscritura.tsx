@@ -289,7 +289,7 @@ function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | n
   const fase = (l: string) => (letraActiva === l ? faseCaracter : null);
 
   return (
-    <div style={{ background: '#2C2C2E', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ background: '#2C2C2E', borderTop: '1px solid rgba(255,255,255,0.06)', borderRadius: '34px 34px 0 0', overflow: 'hidden' }}>
       <BarraPredictiva />
       <div style={{ padding: '14px 17px 0' }}>
         <div style={{ display: 'flex', marginBottom: 23 }}>
