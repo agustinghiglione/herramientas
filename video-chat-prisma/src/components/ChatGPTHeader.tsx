@@ -10,16 +10,16 @@ function IconoHistorial() {
   );
 }
 
-function IconoRefresh() {
+/** Ícono de chat de voz — mismas barras de onda que el botón de dictado del
+ * input, reutilizadas acá como el botón circular de modo voz de la barra
+ * superior (así es como abre la app real antes de mandar el primer mensaje). */
+function IconoChatVoz() {
   return (
-    <svg width="36" height="36" viewBox="0 0 20 20" fill="none">
-      <path
-        d="M17 4V8H13M3 16V12H7M4.5 7.5C5.4 5 7.7 3.2 10.4 3C13.6 2.8 16.4 4.8 17.3 7.7M15.5 12.5C14.6 15 12.3 16.8 9.6 17C6.4 17.2 3.6 15.2 2.7 12.3"
-        stroke="#ececec"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="30" height="30" viewBox="0 0 22 22" fill="none">
+      <rect x="1" y="8" width="3" height="6" rx="1.5" fill="#ececec" />
+      <rect x="6.5" y="4" width="3" height="14" rx="1.5" fill="#ececec" />
+      <rect x="12" y="0" width="3" height="22" rx="1.5" fill="#ececec" />
+      <rect x="17.5" y="6" width="3" height="10" rx="1.5" fill="#ececec" />
     </svg>
   );
 }
@@ -58,11 +58,16 @@ function IconoMas() {
  *
  * Medidas según las rondas de ajuste de escala del experto: barra a 110px
  * de alto, botones circulares de 76x76px, el de menú (hamburguesa) con
- * fondo sólido #1A1A1A. El CONTENEDOR de los botones de refresh/lápiz+más
+ * fondo sólido #1A1A1A. El CONTENEDOR de los botones de lápiz+más
  * mantiene la opacidad suave (así se ven en la referencia real cuando no
  * son el ícono de navegación principal), pero los ÍCONOS en sí van en
  * blanco puro — y un +15% más grandes que la ronda anterior (hamburguesa
  * y lápiz, para que no se pierdan en pantallas móviles chicas).
+ *
+ * El estado de ANTES de escribir (pantalla de inicio) ya no muestra el
+ * selector Chat/Work — la app real, en ese momento, muestra la píldora
+ * con destello "✨ Mejorar el plan" en el centro y el botón de chat de voz
+ * a la derecha (no un botón de refresh).
  */
 export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ conversacionIniciada }) => {
   return (
@@ -91,31 +96,22 @@ export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ con
 
       {!conversacionIniciada ? (
         <>
+          {/* Píldora nativa con destello — reemplaza al selector Chat/Work,
+              que no existe en la pantalla de inicio real de la app. */}
           <div
             style={{
-              background: '#222222',
-              borderRadius: 29,
-              padding: '18px 10px',
+              background: '#1C2430',
+              borderRadius: 999,
+              padding: '18px 30px',
               display: 'flex',
-              gap: 4,
+              alignItems: 'center',
+              gap: 10,
             }}
           >
-            <div
-              style={{
-                background: '#343434',
-                borderRadius: 22,
-                padding: '11px 29px',
-                color: '#ececec',
-                fontSize: 24,
-                fontWeight: 600,
-                fontFamily: FUENTE_SISTEMA,
-              }}
-            >
-              Chat
-            </div>
-            <div style={{ padding: '11px 29px', color: 'rgba(236,236,236,0.55)', fontSize: 24, fontFamily: FUENTE_SISTEMA }}>
-              Work
-            </div>
+            <span style={{ fontSize: 24, lineHeight: 1 }}>✨</span>
+            <span style={{ color: '#409CFF', fontSize: 24, fontWeight: 600, fontFamily: FUENTE_SISTEMA, whiteSpace: 'nowrap' }}>
+              Mejorar el plan
+            </span>
           </div>
           <div
             style={{
@@ -128,7 +124,7 @@ export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ con
               justifyContent: 'center',
             }}
           >
-            <IconoRefresh />
+            <IconoChatVoz />
           </div>
         </>
       ) : (

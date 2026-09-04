@@ -82,8 +82,11 @@ function BotonMic() {
   );
 }
 
+// Layout en español: la fila 2 lleva la Ñ al final (a s d f g h j k l ñ) y,
+// a diferencia del layout en inglés, esa fila NO va inset — tiene 10 teclas,
+// igual que la fila 1, así que ocupa el mismo ancho completo.
 const FILA_1 = 'QWERTYUIOP'.split('');
-const FILA_2 = 'ASDFGHJKL'.split('');
+const FILA_2 = 'ASDFGHJKLÑ'.split('');
 const FILA_3 = 'ZXCVBNM'.split('');
 
 /** Flecha de mayúsculas (⇧), dibujada a mano para no depender de fuentes de emoji. */
@@ -101,16 +104,6 @@ function IconoBackspace() {
     <svg width="50" height="40" viewBox="0 0 30 24" fill="none">
       <path d="M9 1H27C28.1 1 29 1.9 29 3V21C29 22.1 28.1 23 27 23H9L1 12L9 1Z" stroke="#ececec" strokeWidth="1.6" strokeLinejoin="round" />
       <path d="M14 8L22 16M22 8L14 16" stroke="#ececec" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconoGlobo() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9.5" stroke="#ececec" strokeWidth="1.55" />
-      <ellipse cx="12" cy="12" rx="4" ry="9.5" stroke="#ececec" strokeWidth="1.55" />
-      <path d="M2.5 12H21.5M3.6 7.5H20.4M3.6 16.5H20.4" stroke="#ececec" strokeWidth="1.55" />
     </svg>
   );
 }
@@ -216,37 +209,87 @@ function Tecla({
   );
 }
 
+/**
+ * Barra de autocompletado predictivo, pegada arriba de la primera fila de
+ * teclas — así se ve un teclado de iPhone real, nunca las teclas empiezan
+ * pegadas contra el input. Tres celdas fijas con la marca (para este video
+ * en particular), separadas por divisores finos.
+ */
+function BarraPredictiva() {
+  const PALABRAS = ['consultora', 'prisma', 'digital'];
+  return (
+    <div
+      style={{
+        height: 50,
+        display: 'flex',
+        alignItems: 'stretch',
+        background: '#1C1C1E',
+        borderRadius: '14px 14px 0 0',
+        overflow: 'hidden',
+      }}
+    >
+      {PALABRAS.map((palabra, i) => (
+        <div
+          key={palabra}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderLeft: i > 0 ? '1px solid #3A3A3C' : undefined,
+          }}
+        >
+          <span style={{ fontSize: 22, color: '#D1D1D6', fontFamily: FUENTE_SISTEMA }}>{palabra}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Teclado escalado ~1.66x respecto a la versión anterior, para llegar a
 // los ~820px (42-43% del alto del canvas) que pidió el experto — en un
 // iPhone real el teclado ocupa mucha más proporción de pantalla que lo
 // que se ve en un mockup de escritorio.
+//
+// Layout en español (no en inglés): letras en minúscula (mayúscula fija
+// solo activa con ⇧), Ñ al final de la fila del medio, y carita sonriente
+// (acceso a emojis) en vez de globo terráqueo (cambio de idioma) abajo a
+// la izquierda — así es el teclado real de un iPhone configurado en
+// español, que es el idioma en el que "escribe" el usuario en el guion.
 function TecladoVirtual({ letraActiva, faseCaracter }: { letraActiva: string | null; faseCaracter: number }) {
+  // letraActiva siempre llega en MAYÚSCULA (así lo devuelve estadoTipeo, para
+  // no depender de mayúsculas/minúsculas al comparar) — las teclas en sí se
+  // MUESTRAN en minúscula, así que la comparación va contra la versión en
+  // mayúscula de cada letra, no contra lo que se ve en la tecla.
   const fase = (l: string) => (letraActiva === l ? faseCaracter : null);
 
   return (
-    <div style={{ background: '#0c0c0d', padding: '30px 17px 54px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div style={{ display: 'flex', marginBottom: 23 }}>
-        {FILA_1.map((l) => (
-          <Tecla key={l} contenido={l} faseActiva={fase(l)} />
-        ))}
-      </div>
-      <div style={{ display: 'flex', marginBottom: 23, padding: '0 55px' }}>
-        {FILA_2.map((l) => (
-          <Tecla key={l} contenido={l} faseActiva={fase(l)} />
-        ))}
-      </div>
-      <div style={{ display: 'flex', marginBottom: 23 }}>
-        <Tecla contenido={<IconoShift />} faseActiva={null} ancho={1.5} variante="especial" />
-        {FILA_3.map((l) => (
-          <Tecla key={l} contenido={l} faseActiva={fase(l)} />
-        ))}
-        <Tecla contenido={<IconoBackspace />} faseActiva={null} ancho={1.5} variante="especial" />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <Tecla contenido="123" faseActiva={null} ancho={1.5} variante="especial" />
-        <Tecla contenido={<IconoGlobo />} faseActiva={null} ancho={1.3} variante="especial" />
-        <Tecla contenido="" faseActiva={fase(' ')} ancho={5.4} variante="especial" />
-        <Tecla contenido={<IconoMicTecla />} faseActiva={null} ancho={1.3} variante="especial" />
+    <div style={{ background: '#0c0c0d', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <BarraPredictiva />
+      <div style={{ padding: '14px 17px 54px' }}>
+        <div style={{ display: 'flex', marginBottom: 23 }}>
+          {FILA_1.map((l) => (
+            <Tecla key={l} contenido={l.toLowerCase()} faseActiva={fase(l)} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', marginBottom: 23 }}>
+          {FILA_2.map((l) => (
+            <Tecla key={l} contenido={l.toLowerCase()} faseActiva={fase(l)} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', marginBottom: 23 }}>
+          <Tecla contenido={<IconoShift />} faseActiva={null} ancho={1.5} variante="especial" />
+          {FILA_3.map((l) => (
+            <Tecla key={l} contenido={l.toLowerCase()} faseActiva={fase(l)} />
+          ))}
+          <Tecla contenido={<IconoBackspace />} faseActiva={null} ancho={1.5} variante="especial" />
+        </div>
+        <div style={{ display: 'flex' }}>
+          <Tecla contenido="123" faseActiva={null} ancho={1.5} variante="especial" />
+          <Tecla contenido="😀" faseActiva={null} ancho={1.3} variante="especial" />
+          <Tecla contenido="" faseActiva={fase(' ')} ancho={5.4} variante="especial" />
+          <Tecla contenido={<IconoMicTecla />} faseActiva={null} ancho={1.3} variante="especial" />
+        </div>
       </div>
     </div>
   );

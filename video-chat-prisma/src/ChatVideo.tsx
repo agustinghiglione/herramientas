@@ -24,6 +24,10 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
   const frame = useCurrentFrame();
 
   const { eventos, mensajesComprometidos } = useMemo(() => parsearGuion(guionTexto, fps), [guionTexto, fps]);
+  // Todos los hooks van ANTES de cualquier return condicional (como el del
+  // banner, más abajo) — si no, React se queja de "more hooks than during
+  // the previous render" apenas la rama que hace early-return se activa.
+  const primerEventoEscribe = useMemo(() => eventos.find((e) => e.accion.tipo === 'escribe'), [eventos]);
 
   const historial = mensajesComprometidos.filter((m) => m.frame <= frame);
 
@@ -135,7 +139,12 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
   // de asentarse el mensaje — así coincide con el momento real en que la
   // app cambia de pantalla.
   const conversacionIniciada = historial.length > 0 || eventoActual?.accion.tipo === 'envia';
-  const mostrarSugerencias = !conversacionIniciada && !escribiendo;
+  // Las sugerencias siguen montadas durante todo el tipeo (no solo antes de
+  // que arranque) — así pueden hacer su propio fade-out de 3 frames apenas
+  // se empieza a escribir, en vez de desaparecer de golpe. Mientras tanto,
+  // debajo, ListaMensajes ya no tiene nada que mostrar (historial vacío, sin
+  // respuesta en curso), así que no hay conflicto visual entre los dos.
+  const mostrarSugerencias = !conversacionIniciada;
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#0d0d0d' }}>
@@ -143,7 +152,7 @@ export const ChatVideo: React.FC<{ guionTexto: string; bannerImagenDisponible?: 
         <StatusBarOS />
         <ChatGPTHeader conversacionIniciada={conversacionIniciada} />
         {mostrarSugerencias ? (
-          <SugerenciasInicio />
+          <SugerenciasInicio frame={frame} frameFadeOut={primerEventoEscribe?.desde} />
         ) : (
           <ListaMensajes frame={frame} historial={historial} respondiendo={respondiendo ?? undefined} />
         )}

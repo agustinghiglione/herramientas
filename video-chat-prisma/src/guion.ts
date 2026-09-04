@@ -335,7 +335,15 @@ const FRAMES_DESLIZAMIENTO = 10;
 
 export function progresoTeclado(frame: number, eventos: EventoTimeline[]): number {
   const eventosEscribe = eventos.filter((e) => e.accion.tipo === 'escribe');
-  for (const e of eventosEscribe) {
+  for (let i = 0; i < eventosEscribe.length; i++) {
+    const e = eventosEscribe[i];
+    // El teclado del PRIMER "usuario escribe" ya arranca desplegado desde el
+    // frame 0 — así abre la app real un chat nuevo (con el teclado puesto y
+    // las sugerencias arriba), no con el teclado deslizándose desde abajo.
+    // Los "usuario escribe" que vengan DESPUÉS sí se deslizan hacia arriba,
+    // porque para esos el teclado sí se había escondido (tras la respuesta
+    // anterior) y hay que traerlo de vuelta.
+    if (i === 0 && frame < e.desde) return 1;
     if (frame >= e.desde - FRAMES_DESLIZAMIENTO && frame < e.desde) {
       return (frame - (e.desde - FRAMES_DESLIZAMIENTO)) / FRAMES_DESLIZAMIENTO;
     }
