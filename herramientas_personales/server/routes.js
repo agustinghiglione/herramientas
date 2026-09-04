@@ -5,6 +5,8 @@ const { extraerTexto } = require('./extraerTexto');
 const { limpiarDocumento } = require('./ia');
 const { generarPdf } = require('./generarPdf');
 const { renderizarVideo, PLANTILLAS } = require('./videoRender');
+const { login: adminLogin, requireAdmin } = require('./adminAuth');
+const { parsearExcel, guardarActual, leerActual } = require('./excel');
 
 // En memoria (no en disco) — el archivo del cliente nunca toca el filesystem
 // del servidor, solo vive en RAM mientras dura la request.
@@ -71,6 +73,41 @@ router.post('/video/render', async (req, res) => {
     console.error('[video/render] error:', err);
     res.status(500).json({ error: err.message || 'No se pudo generar el video.' });
   }
+});
+
+
+// --- Panel de administración: login ---
+router.post('/admin/login', adminLogin);
+
+// --- Panel de administración: carga y lectura del Excel de Prisma ---
+// Guarda TODAS las hojas tal cual vienen, sin asumir su estructura — es para
+// tener los datos a mano para un futuro estudio del negocio, no un reporte
+// con un formato fijo todavía.
+router.post('/admin/excel/subir', requireAdmin, upload.single('archivo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Subí un archivo .xlsx.' });
+    }
+    const datos = await parsearExcel(req.file.buffer);
+    if (datos.hojas.length === 0) {
+      return res.status(400).json({ error: 'No se encontró ninguna hoja con datos en ese archivo.' });
+    }
+    const registro = guardarActual(req.file.originalname, datos);
+    res.json({
+      nombreArchivo: registro.nombreArchivo,
+      subidoEn: registro.subidoEn,
+      hojas: registro.hojas.map((h) => ({ nombre: h.nombre, totalFilas: h.totalFilas, totalColumnas: h.totalColumnas })),
+    });
+  } catch (err) {
+    console.error('[admin/excel/subir] error:', err);
+    res.status(500).json({ error: err.message || 'No se pudo leer ese Excel.' });
+  }
+});
+
+router.get('/admin/excel/actual', requireAdmin, (_req, res) => {
+  const registro = leerActual();
+  if (!registro) return res.status(404).json({ error: 'Todavía no se subió ningún Excel.' });
+  res.json(registro);
 });
 
 module.exports = { router };

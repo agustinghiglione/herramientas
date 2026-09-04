@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Panel de administración — Consultora Prisma</title>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --card: #ffffff;
+      --border: #e3e0d8;
+      --ink: #1f2a37;
+      --ink-soft: #5b6672;
+      --primary: #345b78;
+      --primary-dark: #223c54;
+      --gold: #e4b15e;
+      --error: #b3423a;
+      --ok: #3f6b3f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, 'Segoe UI', Inter, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+
+    nav.top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: rgba(250, 248, 245, 0.92);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav.top .logo { font-size: 15px; }
+    nav.top .logo b { font-weight: 800; }
+    nav.top .logo span { color: var(--ink-soft); font-weight: 400; }
+    nav.top a.volver { font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: none; }
+    nav.top a.volver:hover { color: var(--primary); }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    /* --- Login --- */
+    .login-box {
+      max-width: 360px;
+      margin: 80px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+    .login-box h1 { font-size: 20px; margin: 0 0 6px; }
+    .login-box p { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 20px; }
+    .login-box input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .login-box button:hover { background: var(--primary-dark); }
+    .login-box button:disabled { opacity: 0.6; cursor: default; }
+
+    /* --- Tabs --- */
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .tabs button {
+      padding: 10px 18px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tabs button.activo { color: var(--primary-dark); border-bottom-color: var(--gold); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 { font-size: 16px; margin: 0 0 4px; }
+    .card p.hint { color: var(--ink-soft); font-size: 13px; margin: 0 0 16px; line-height: 1.5; }
+
+    details.config { margin-bottom: 20px; }
+    details.config summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+    details.config .contenido { margin-top: 12px; }
+
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    input[type="text"], input[type="password"], input[type="url"], textarea, select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+    textarea { resize: vertical; }
+
+    .fila-estados { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 8px 0 16px; }
+    .fila-estados label {
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 500; font-size: 13px; margin: 0;
+      background: #f2efe8; padding: 6px 12px; border-radius: 999px;
+      cursor: pointer;
+    }
+    .fila-estados input { width: auto; margin: 0; }
+
+    button.accion {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+    button.accion:hover { background: var(--primary-dark); }
+    button.accion:disabled { opacity: 0.55; cursor: default; }
+    button.secundaria {
+      padding: 9px 16px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    table.datos { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.datos th, table.datos td {
+      text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    table.datos th { color: var(--ink-soft); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .badge-estado {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; background: #f2efe8; color: var(--primary-dark);
+    }
+
+    details.fila-detalle summary { cursor: pointer; font-size: 12.5px; color: var(--primary); }
+    details.fila-detalle { margin-top: 4px; }
+
+    .estado-msg { margin-top: 12px; font-size: 13.5px; }
+    .estado-msg.ok { color: var(--ok); }
+    .estado-msg.error { color: var(--error); }
+
+    .preview-html {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      background: #fff;
+      min-height: 80px;
+      font-size: 13px;
+    }
+
+    .campo { margin-bottom: 16px; }
+
+    .resumen-conteo { font-size: 13px; color: var(--ink-soft); margin: 4px 0 16px; }
+
+    .sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .sub-tabs button {
+      padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-soft);
+    }
+    .sub-tabs button.activo { background: var(--primary); color: #fff; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <nav class="top">
+    <div class="logo">CONSULTORA <b>PRISMA</b> <span>— Panel de administración</span></div>
+    <a class="volver" href="/">← Volver a herramientas</a>
+  </nav>
+
+  <div id="pantalla-login" class="login-box">
+    <h1>Panel de administración</h1>
+    <p>Ingresá la contraseña compartida para entrar.</p>
+    <input type="password" id="input-password" placeholder="Contraseña" autocomplete="current-password" />
+    <button id="boton-login">Entrar</button>
+    <div id="estado-login" class="estado-msg"></div>
+  </div>
+
+  <div id="panel" class="wrap" hidden>
+    <div class="tabs">
+      <button data-tab="clientes" class="activo">Clientes y mails</button>
+      <button data-tab="excel">Datos del Excel</button>
+      <button id="boton-logout" class="secundaria" style="margin-left:auto;">Cerrar sesión</button>
+    </div>
+
+    <!-- ================= TAB CLIENTES ================= -->
+    <section id="tab-clientes">
+      <details class="config">
+        <summary>Configuración de conexión con Prisma (prisma_2)</summary>
+        <div class="contenido card">
+          <div class="campo">
+            <label for="input-api-base">URL del sitio de Prisma (donde vive la base de diagnósticos)</label>
+            <input type="url" id="input-api-base" placeholder="https://consultoraprisma.digital" />
+          </div>
+          <button class="secundaria" id="boton-guardar-api-base">Guardar</button>
+          <div id="estado-api-base" class="estado-msg"></div>
+        </div>
+      </details>
+
+      <div class="card">
+        <h2>Clientes por estado</h2>
+        <p class="hint">Elegí uno o más estados: se usan tanto para ver la lista como para definir a quién se le manda el mail de abajo.</p>
+        <div class="fila-estados" id="fila-estados"></div>
+        <button class="accion" id="boton-buscar">Buscar</button>
+        <div class="resumen-conteo" id="resumen-clientes"></div>
+        <div id="estado-clientes" class="estado-msg"></div>
+        <div class="tabla-scroll" style="margin-top:12px;">
+          <table class="datos" id="tabla-clientes">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Negocio</th><th>Email</th><th>Estado</th>
+                <th>% Parte 1</th><th>% Completo</th><th>Diagnóstico</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Redactar y enviar mail</h2>
+        <p class="hint">Se manda a todos los clientes que coincidan con los estados marcados arriba y tengan mail cargado. Podés escribir el cuerpo en HTML (con estilos inline) o como texto simple.</p>
+
+        <div class="campo">
+          <label for="input-asunto">Asunto</label>
+          <input type="text" id="input-asunto" placeholder="Asunto del mail" />
+        </div>
+
+        <div class="campo">
+          <label for="input-cuerpo">Cuerpo (HTML o texto)</label>
+          <textarea id="input-cuerpo" rows="8" placeholder="&lt;p&gt;Hola {nombre}, ...&lt;/p&gt;"></textarea>
+        </div>
+
+        <div class="campo">
+          <label>Vista previa</label>
+          <div class="preview-html" id="preview-cuerpo"></div>
+        </div>
+
+        <div class="campo">
+          <label for="input-adjunto">Adjunto (opcional)</label>
+          <input type="file" id="input-adjunto" />
+        </div>
+
+        <button class="accion" id="boton-enviar">Enviar mail</button>
+        <div id="estado-envio" class="estado-msg"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB EXCEL ================= -->
+    <section id="tab-excel" hidden>
+      <div class="card">
+        <h2>Subir Excel de Prisma</h2>
+        <p class="hint">Sube el archivo completo — se leen todas las hojas tal cual están, para tenerlas a mano para un futuro análisis del negocio. Cada carga nueva reemplaza a la anterior.</p>
+        <input type="file" id="input-excel" accept=".xlsx" />
+        <button class="accion" id="boton-subir-excel" style="margin-top:12px;">Subir</button>
+        <div id="estado-excel" class="estado-msg"></div>
+      </div>
+
+      <div class="card" id="card-excel-datos" hidden>
+        <h2 id="titulo-excel-actual"></h2>
+        <p class="hint" id="fecha-excel-actual"></p>
+        <div class="sub-tabs" id="sub-tabs-hojas"></div>
+        <div class="tabla-scroll">
+          <table class="datos" id="tabla-hoja"><tbody></tbody></table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ESTADOS = ['DiagnosticoA', 'DiagnosticoFull', 'EnContacto', 'Contactado', 'Agendado', 'Trabajando', 'FinTrabajo'];
+    const LS = {
+      apiBase: 'prisma_admin_api_base',
+      tokenLocal: 'prisma_admin_token_local',
+      tokenPrisma: 'prisma_admin_token_prisma',
+    };
+
+    function getToken(key) {
+      try {
+        const raw = JSON.parse(localStorage.getItem(key) || 'null');
+        if (raw && raw.token && raw.expiraEn > Date.now()) return raw.token;
+      } catch {}
+      return null;
+    }
+    function setToken(key, data) {
+      try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+    }
+    function getApiBase() {
+      try { return (localStorage.getItem(LS.apiBase) || '').replace(/\/$/, ''); } catch { return ''; }
+    }
+
+    // --- Login ---
+    const pantallaLogin = document.getElementById('pantalla-login');
+    const panel = document.getElementById('panel');
+    const inputPassword = document.getElementById('input-password');
+    const botonLogin = document.getElementById('boton-login');
+    const estadoLogin = document.getElementById('estado-login');
+
+    async function intentarLogin(password) {
+      const resultados = { local: false, prisma: null };
+
+      const rLocal = await fetch('/api/admin/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }),
+      }).catch(() => null);
+      if (rLocal && rLocal.ok) {
+        const data = await rLocal.json();
+        setToken(LS.tokenLocal, data);
+        resultados.local = true;
+      }
+
+      const apiBase = getApiBase();
+      if (apiBase) {
+        try {
+          const rPrisma = await fetch(apiBase + '/api/admin/login', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }),
+          });
+          if (rPrisma.ok) {
+            const data = await rPrisma.json();
+            setToken(LS.tokenPrisma, data);
+            resultados.prisma = true;
+          } else {
+            resultados.prisma = false;
+          }
+        } catch {
+          resultados.prisma = false;
+        }
+      }
+
+      return resultados;
+    }
+
+    function mostrarPanel() {
+      pantallaLogin.hidden = true;
+      panel.hidden = false;
+      document.getElementById('input-api-base').value = getApiBase();
+      cargarClientes();
+      cargarExcelActual();
+    }
+
+    botonLogin.addEventListener('click', async () => {
+      const password = inputPassword.value;
+      if (!password) return;
+      botonLogin.disabled = true;
+      botonLogin.textContent = 'Entrando…';
+      estadoLogin.textContent = '';
+      estadoLogin.className = 'estado-msg';
+
+      const r = await intentarLogin(password);
+
+      botonLogin.disabled = false;
+      botonLogin.textContent = 'Entrar';
+
+      if (!r.local) {
+        estadoLogin.textContent = 'Contraseña incorrecta.';
+        estadoLogin.className = 'estado-msg error';
+        return;
+      }
+      if (r.prisma === false) {
+        estadoLogin.textContent = 'Entraste, pero no se pudo conectar con Prisma (revisá la URL en Configuración, dentro del panel) — por ahora solo vas a poder usar la parte de Excel.';
+        estadoLogin.className = 'estado-msg error';
+        setTimeout(mostrarPanel, 1800);
+        return;
+      }
+      mostrarPanel();
+    });
+    inputPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') botonLogin.click(); });
+
+    document.getElementById('boton-logout').addEventListener('click', () => {
+      localStorage.removeItem(LS.tokenLocal);
+      localStorage.removeItem(LS.tokenPrisma);
+      panel.hidden = true;
+      pantallaLogin.hidden = false;
+      inputPassword.value = '';
+    });
+
+    // Si ya había una sesión vigente (token no vencido), entra directo.
+    if (getToken(LS.tokenLocal)) mostrarPanel();
+
+    // --- Config API base ---
+    document.getElementById('boton-guardar-api-base').addEventListener('click', () => {
+      const valor = document.getElementById('input-api-base').value.trim().replace(/\/$/, '');
+      try { localStorage.setItem(LS.apiBase, valor); } catch {}
+      const el = document.getElementById('estado-api-base');
+      el.textContent = 'Guardado. Si cambiaste la URL, volvé a iniciar sesión para conectar con esa base.';
+      el.className = 'estado-msg ok';
+    });
+
+    // --- Tabs ---
+    document.querySelectorAll('.tabs button[data-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button[data-tab]').forEach((b) => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        document.getElementById('tab-clientes').hidden = btn.dataset.tab !== 'clientes';
+        document.getElementById('tab-excel').hidden = btn.dataset.tab !== 'excel';
+      });
+    });
+
+    // --- Filtro de estados ---
+    const filaEstados = document.getElementById('fila-estados');
+    filaEstados.innerHTML = ESTADOS.map((e) => `
+      <label><input type="checkbox" value="${e}" checked /> ${e}</label>
+    `).join('');
+
+    function estadosSeleccionados() {
+      return Array.from(filaEstados.querySelectorAll('input:checked')).map((i) => i.value);
+    }
+
+    // --- Clientes ---
+    const estadoClientes = document.getElementById('estado-clientes');
+    const resumenClientes = document.getElementById('resumen-clientes');
+    const tbodyClientes = document.querySelector('#tabla-clientes tbody');
+
+    function pct(scores) {
+      return scores.map((s) => `${s.dimension}: ${Math.round((s.valor / 4) * 100)}%`).join(' · ');
+    }
+
+    async function cargarClientes() {
+      const token = getToken(LS.tokenPrisma);
+      if (!token) {
+        estadoClientes.textContent = 'No hay conexión con Prisma — configurá la URL arriba e iniciá sesión de nuevo.';
+        estadoClientes.className = 'estado-msg error';
+        return;
+      }
+      const estados = estadosSeleccionados();
+      estadoClientes.textContent = 'Buscando…';
+      estadoClientes.className = 'estado-msg';
+
+      try {
+        const url = getApiBase() + '/api/admin/clientes?estados=' + encodeURIComponent(estados.join(','));
+        const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) throw new Error((await res.json()).error || 'Error ' + res.status);
+        const { clientes } = await res.json();
+
+        tbodyClientes.innerHTML = clientes.map((c) => `
+          <tr>
+            <td>${c.nombre || ''}</td>
+            <td>${c.negocio || ''}</td>
+            <td>${c.email || ''}</td>
+            <td><span class="badge-estado">${c.estadoCliente || '—'}</span></td>
+            <td>${c.parte1 ? c.parte1.overallPercent + '%' : '—'}</td>
+            <td>${c.completo ? c.completo.overallPercent + '%' : '—'}</td>
+            <td>${(c.creadoEn || '').slice(0, 10)}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="7" style="color:#5b6672;">Sin resultados.</td></tr>';
+
+        resumenClientes.textContent = `${clientes.length} cliente(s) — este es el grupo al que se le mandaría el mail de abajo.`;
+        estadoClientes.textContent = '';
+      } catch (err) {
+        estadoClientes.textContent = err.message || 'No se pudo cargar la lista.';
+        estadoClientes.className = 'estado-msg error';
+      }
+    }
+    document.getElementById('boton-buscar').addEventListener('click', cargarClientes);
+
+    // --- Composer de mail ---
+    const inputCuerpo = document.getElementById('input-cuerpo');
+    const previewCuerpo = document.getElementById('preview-cuerpo');
+    inputCuerpo.addEventListener('input', () => { previewCuerpo.innerHTML = inputCuerpo.value; });
+
+    document.getElementById('boton-enviar').addEventListener('click', async () => {
+      const token = getToken(LS.tokenPrisma);
+      const estadoEnvio = document.getElementById('estado-envio');
+      if (!token) {
+        estadoEnvio.textContent = 'No hay conexión con Prisma.';
+        estadoEnvio.className = 'estado-msg error';
+        return;
+      }
+      const estados = estadosSeleccionados();
+      const asunto = document.getElementById('input-asunto').value.trim();
+      const cuerpoHtml = inputCuerpo.value.trim();
+      if (estados.length === 0 || !asunto || !cuerpoHtml) {
+        estadoEnvio.textContent = 'Completá los estados, el asunto y el cuerpo antes de enviar.';
+        estadoEnvio.className = 'estado-msg error';
+        return;
+      }
+
+      if (!confirm(`¿Mandar este mail a los clientes en estado ${estados.join(', ')}?`)) return;
+
+      const boton = document.getElementById('boton-enviar');
+      boton.disabled = true;
+      boton.textContent = 'Enviando…';
+      estadoEnvio.textContent = '';
+      estadoEnvio.className = 'estado-msg';
+
+      try {
+        let adjunto = null;
+        const archivo = document.getElementById('input-adjunto').files[0];
+        if (archivo) {
+          const contentBase64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(archivo);
+          });
+          adjunto = { filename: archivo.name, contentType: archivo.type, contentBase64 };
+        }
+
+        const res = await fetch(getApiBase() + '/api/admin/enviar-mail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ estados, asunto, cuerpoHtml, adjunto }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+
+        estadoEnvio.textContent = `Enviados: ${data.enviados} de ${data.destinatarios} · Estado actualizado a Contactado: ${data.actualizados}` +
+          (data.fallidos.length ? ` · Fallaron: ${data.fallidos.map((f) => f.email).join(', ')}` : '');
+        estadoEnvio.className = 'estado-msg ok';
+        cargarClientes();
+      } catch (err) {
+        estadoEnvio.textContent = err.message || 'No se pudo enviar.';
+        estadoEnvio.className = 'estado-msg error';
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Enviar mail';
+      }
+    });
+
+    // --- Excel ---
+    const estadoExcel = document.getElementById('estado-excel');
+    let hojasActuales = [];
+
+    function renderizarHoja(indice) {
+      const hoja = hojasActuales[indice];
+      if (!hoja) return;
+      const tbody = document.querySelector('#tabla-hoja tbody');
+      const [encabezado, ...resto] = hoja.filas;
+      tbody.innerHTML = '';
+      if (encabezado) {
+        tbody.innerHTML += '<tr>' + encabezado.map((c) => `<th>${c ?? ''}</th>`).join('') + '</tr>';
+      }
+      tbody.innerHTML += resto.map((fila) => '<tr>' + fila.map((c) => `<td>${c ?? ''}</td>`).join('') + '</tr>').join('');
+
+      document.querySelectorAll('#sub-tabs-hojas button').forEach((b, i) => {
+        b.classList.toggle('activo', i === indice);
+      });
+    }
+
+    function mostrarExcel(registro) {
+      hojasActuales = registro.hojas;
+      document.getElementById('card-excel-datos').hidden = false;
+      document.getElementById('titulo-excel-actual').textContent = registro.nombreArchivo;
+      document.getElementById('fecha-excel-actual').textContent =
+        'Subido el ' + new Date(registro.subidoEn).toLocaleString('es-AR');
+
+      const subTabs = document.getElementById('sub-tabs-hojas');
+      subTabs.innerHTML = hojasActuales.map((h, i) =>
+        `<button data-i="${i}">${h.nombre} (${h.totalFilas})</button>`,
+      ).join('');
+      subTabs.querySelectorAll('button').forEach((b) => {
+        b.addEventListener('click', () => renderizarHoja(Number(b.dataset.i)));
+      });
+      renderizarHoja(0);
+    }
+
+    async function cargarExcelActual() {
+      const token = getToken(LS.tokenLocal);
+      if (!token) return;
+      try {
+        const res = await fetch('/api/admin/excel/actual', { headers: { Authorization: 'Bearer ' + token } });
+        if (res.status === 404) return;
+        if (!res.ok) throw new Error('Error ' + res.status);
+        mostrarExcel(await res.json());
+      } catch {
+        // silencioso: simplemente no había Excel cargado todavía, o falló la sesión.
+      }
+    }
+
+    document.getElementById('boton-subir-excel').addEventListener('click', async () => {
+      const token = getToken(LS.tokenLocal);
+      if (!token) {
+        estadoExcel.textContent = 'Sesión inválida, volvé a iniciar sesión.';
+        estadoExcel.className = 'estado-msg error';
+        return;
+      }
+      const archivo = document.getElementById('input-excel').files[0];
+      if (!archivo) {
+        estadoExcel.textContent = 'Elegí un archivo .xlsx primero.';
+        estadoExcel.className = 'estado-msg error';
+        return;
+      }
+
+      const boton = document.getElementById('boton-subir-excel');
+      boton.disabled = true;
+      boton.textContent = 'Subiendo…';
+      estadoExcel.textContent = '';
+      estadoExcel.className = 'estado-msg';
+
+      try {
+        const form = new FormData();
+        form.append('archivo', archivo);
+        const res = await fetch('/api/admin/excel/subir', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token },
+          body: form,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+
+        estadoExcel.textContent = `Listo — se cargaron ${data.hojas.length} hoja(s).`;
+        estadoExcel.className = 'estado-msg ok';
+        await cargarExcelActual();
+      } catch (err) {
+        estadoExcel.textContent = err.message || 'No se pudo subir el archivo.';
+        estadoExcel.className = 'estado-msg error';
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Subir';
+      }
+    });
+  </script>
+</body>
+</html>
