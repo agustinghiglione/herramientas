@@ -241,9 +241,14 @@ function BarraPredictiva() {
 /**
  * Barra de navegación inferior (Home Dock) — franja propia, más oscura que
  * el cuerpo del teclado, que vive DEBAJO de la fila de espacio (no es parte
- * del cuerpo del teclado en sí). Aloja solo tres cosas, igual que en un
- * iPhone real: el ícono de emoji a la izquierda, el indicador de inicio
- * (home indicator) centrado, y el ícono de dictado a la derecha.
+ * del cuerpo del teclado en sí). Aloja el ícono de emoji a la izquierda y
+ * el de dictado a la derecha.
+ *
+ * Contra una captura real de referencia del iPhone del cliente: esa
+ * captura NO muestra la barra blanca del home indicator dentro del
+ * contenido de la app (el sistema la dibuja aparte, no queda en la
+ * captura), así que la sacamos. Los íconos ahí van en blanco pleno y
+ * trazo grueso, no gris apagado — se ven bien definidos, no apagados.
  */
 function HomeDock() {
   return (
@@ -255,23 +260,10 @@ function HomeDock() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 46px',
-        position: 'relative',
       }}
     >
-      <Smile color="#8E8E93" size={32} />
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 140,
-          height: 5,
-          background: '#FFFFFF',
-          borderRadius: 100,
-        }}
-      />
-      <Mic color="#8E8E93" size={32} />
+      <Smile color="#FFFFFF" size={34} strokeWidth={2} />
+      <Mic color="#FFFFFF" size={34} strokeWidth={2} />
     </div>
   );
 }

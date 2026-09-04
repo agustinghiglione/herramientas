@@ -1,26 +1,28 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkle } from 'lucide-react';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
+/** Ícono de menú — DOS barras horizontales, no tres. Contra una captura
+ * real de referencia del iPhone del cliente confirmamos que el botón de
+ * la izquierda de la app no es la hamburguesa clásica de 3 líneas. */
 function IconoHistorial() {
   return (
-    <svg width="46" height="35" viewBox="0 0 22 16" fill="none">
-      <path d="M1 1H21M1 8H21M1 15H21" stroke="#FFFFFF" strokeWidth="3.2" strokeLinecap="round" />
+    <svg width="42" height="30" viewBox="0 0 22 16" fill="none">
+      <path d="M1 2H21M1 14H21" stroke="#FFFFFF" strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   );
 }
 
-/** Ícono de chat de voz — mismas barras de onda que el botón de dictado del
- * input, reutilizadas acá como el botón circular de modo voz de la barra
- * superior (así es como abre la app real antes de mandar el primer mensaje). */
+/** Ícono de chat de voz — círculo abierto con una colita, como el ícono de
+ * modo voz real de la app (no las barras de onda que usa el botón de
+ * dictado del input; contra la captura real de referencia son distintos). */
 function IconoChatVoz() {
   return (
-    <svg width="30" height="30" viewBox="0 0 22 22" fill="none">
-      <rect x="1" y="8" width="3" height="6" rx="1.5" fill="#ececec" />
-      <rect x="6.5" y="4" width="3" height="14" rx="1.5" fill="#ececec" />
-      <rect x="12" y="0" width="3" height="22" rx="1.5" fill="#ececec" />
-      <rect x="17.5" y="6" width="3" height="10" rx="1.5" fill="#ececec" />
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+      {/* Círculo abierto (con un pequeño hueco abajo a la izquierda) + colita, como una burbuja de chat estilizada. */}
+      <circle cx="12" cy="12" r="8.5" stroke="#ececec" strokeWidth="1.8" strokeDasharray="40 6" strokeDashoffset="-8" strokeLinecap="round" />
+      <path d="M8.2 18.6L6.8 21.5L10 19.8" stroke="#ececec" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -69,6 +71,12 @@ function IconoMas() {
  * selector Chat/Work — la app real, en ese momento, muestra la píldora
  * con destello "✨ Mejorar el plan" en el centro y el botón de chat de voz
  * a la derecha (no un botón de refresh).
+ *
+ * Contra una captura real de referencia del iPhone del cliente: el texto
+ * de la píldora "Mejorar el plan" iba notablemente más grande de lo que
+ * teníamos (ajustado acá a 36px/destello 32px), el destello es una ÚNICA
+ * estrellita (Sparkle, no el racimo de Sparkles), y el ícono de menú de la
+ * izquierda son 2 barras, no 3.
  */
 export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ conversacionIniciada }) => {
   return (
@@ -103,14 +111,14 @@ export const ChatGPTHeader: React.FC<{ conversacionIniciada: boolean }> = ({ con
             style={{
               background: '#1C2430',
               borderRadius: 999,
-              padding: '18px 30px',
+              padding: '18px 34px',
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
+              gap: 12,
             }}
           >
-            <Sparkles color="#409CFF" size={28} style={{ flexShrink: 0 }} />
-            <span style={{ color: '#409CFF', fontSize: 24, fontWeight: 600, fontFamily: FUENTE_SISTEMA, whiteSpace: 'nowrap' }}>
+            <Sparkle color="#409CFF" size={32} fill="#409CFF" style={{ flexShrink: 0 }} />
+            <span style={{ color: '#409CFF', fontSize: 36, fontWeight: 600, fontFamily: FUENTE_SISTEMA, whiteSpace: 'nowrap' }}>
               Mejorar el plan
             </span>
           </div>

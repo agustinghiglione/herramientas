@@ -26,6 +26,10 @@ interface Props {
  * de entrada (nunca píldoras horizontales flotantes), con íconos
  * vectoriales de lucide-react en gris, sin fondo redondeado. Desaparecen
  * con un fade-out breve apenas el usuario empieza a escribir, no de golpe.
+ *
+ * Tamaño ajustado contra una captura real de referencia del iPhone del
+ * cliente: el texto y los íconos ahí eran notablemente más grandes que lo
+ * que teníamos (medido en la foto, ~1.5x) — subido acá a 38px/ícono 36px.
  */
 export const SugerenciasInicio: React.FC<Props> = ({ frame, frameFadeOut }) => {
   const opacidad =
@@ -39,14 +43,14 @@ export const SugerenciasInicio: React.FC<Props> = ({ frame, frameFadeOut }) => {
   if (opacidad <= 0) return null;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 28px 20px', opacity: opacidad }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 28px 26px', opacity: opacidad }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
         {SUGERENCIAS.map((s, i) => {
           const Icono = s.icono;
           return (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <Icono color="#A6A6A6" size={30} />
-              <span style={{ fontSize: 28, color: '#ECECEC', fontFamily: FUENTE_SISTEMA }}>{s.texto}</span>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
+              <Icono color="#A6A6A6" size={36} />
+              <span style={{ fontSize: 38, color: '#ECECEC', fontFamily: FUENTE_SISTEMA }}>{s.texto}</span>
             </div>
           );
         })}
