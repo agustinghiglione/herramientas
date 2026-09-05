@@ -6,7 +6,7 @@ const { limpiarDocumento } = require('./ia');
 const { generarPdf } = require('./generarPdf');
 const { renderizarVideo, PLANTILLAS } = require('./videoRender');
 const { login: adminLogin, requireAdmin } = require('./adminAuth');
-const { parsearExcel, guardarActual, leerActual } = require('./excel');
+const { obtenerHojas, guardarActual, leerActual } = require('./googleSheets');
 
 // En memoria (no en disco) — el archivo del cliente nunca toca el filesystem
 // del servidor, solo vive en RAM mientras dura la request.
@@ -19,7 +19,7 @@ const router = Router();
 
 router.get('/salud', (_req, res) => res.json({ ok: true }));
 
-router.post('/limpiar', upload.single('archivo'), async (req, res) => {
+router.post('/limpiar', requireAdmin, upload.single('archivo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Subí un archivo (PDF, DOCX o TXT).' });
@@ -46,12 +46,12 @@ router.post('/limpiar', upload.single('archivo'), async (req, res) => {
   }
 });
 
-router.get('/video/plantillas', (_req, res) => {
+router.get('/video/plantillas', requireAdmin, (_req, res) => {
   const plantillas = Object.entries(PLANTILLAS).map(([id, p]) => ({ id, nombre: p.nombre }));
   res.json({ plantillas });
 });
 
-router.post('/video/render', async (req, res) => {
+router.post('/video/render', requireAdmin, async (req, res) => {
   try {
     const guion = (req.body?.guion || '').trim();
     const plantilla = (req.body?.plantilla || 'chatgpt').trim();
@@ -79,34 +79,28 @@ router.post('/video/render', async (req, res) => {
 // --- Panel de administración: login ---
 router.post('/admin/login', adminLogin);
 
-// --- Panel de administración: carga y lectura del Excel de Prisma ---
-// Guarda TODAS las hojas tal cual vienen, sin asumir su estructura — es para
-// tener los datos a mano para un futuro estudio del negocio, no un reporte
-// con un formato fijo todavía.
-router.post('/admin/excel/subir', requireAdmin, upload.single('archivo'), async (req, res) => {
+// --- Panel de administración: datos en vivo desde el Google Sheet de Prisma ---
+// Trae TODAS las hojas de la planilla tal cual están, sin asumir su
+// estructura — es para tener los datos a mano para un futuro estudio del
+// negocio, no un reporte con un formato fijo todavía. Reemplaza a la carga
+// manual de un archivo Excel: ahora se actualiza con un botón, en vivo.
+router.post('/admin/sheet/actualizar', requireAdmin, async (_req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'Subí un archivo .xlsx.' });
-    }
-    const datos = await parsearExcel(req.file.buffer);
-    if (datos.hojas.length === 0) {
-      return res.status(400).json({ error: 'No se encontró ninguna hoja con datos en ese archivo.' });
-    }
-    const registro = guardarActual(req.file.originalname, datos);
+    const datos = await obtenerHojas();
+    const registro = guardarActual(datos);
     res.json({
-      nombreArchivo: registro.nombreArchivo,
-      subidoEn: registro.subidoEn,
+      actualizadoEn: registro.actualizadoEn,
       hojas: registro.hojas.map((h) => ({ nombre: h.nombre, totalFilas: h.totalFilas, totalColumnas: h.totalColumnas })),
     });
   } catch (err) {
-    console.error('[admin/excel/subir] error:', err);
-    res.status(500).json({ error: err.message || 'No se pudo leer ese Excel.' });
+    console.error('[admin/sheet/actualizar] error:', err);
+    res.status(500).json({ error: err.message || 'No se pudo leer la planilla de Google Sheets.' });
   }
 });
 
-router.get('/admin/excel/actual', requireAdmin, (_req, res) => {
+router.get('/admin/sheet/actual', requireAdmin, (_req, res) => {
   const registro = leerActual();
-  if (!registro) return res.status(404).json({ error: 'Todavía no se subió ningún Excel.' });
+  if (!registro) return res.status(404).json({ error: 'Todavía no se trajeron datos del Sheet.' });
   res.json(registro);
 });
 
