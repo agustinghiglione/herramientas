@@ -514,6 +514,11 @@ banner (Ns): texto de cierre — la promoción</pre>
 
   <script>
     const ESTADOS = ['DiagnosticoA', 'DiagnosticoFull', 'EnContacto', 'Contactado', 'Agendado', 'Trabajando', 'FinTrabajo'];
+    // Precargado así el login funciona de una en un navegador nuevo, sin
+    // tener que escribir y guardar la URL a mano antes de entrar la primera
+    // vez. Si algún día prisma_2 se muda de dominio, "Guardar" en
+    // Configuración pisa este valor con el que se cargue ahí.
+    const DEFAULT_API_BASE = 'https://consultoraprisma.digital';
     const LS = {
       apiBase: 'prisma_admin_api_base',
       tokenLocal: 'prisma_admin_token_local',
@@ -531,7 +536,7 @@ banner (Ns): texto de cierre — la promoción</pre>
       try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
     }
     function getApiBase() {
-      try { return (localStorage.getItem(LS.apiBase) || '').replace(/\/$/, ''); } catch { return ''; }
+      try { return (localStorage.getItem(LS.apiBase) || DEFAULT_API_BASE).replace(/\/$/, ''); } catch { return DEFAULT_API_BASE; }
     }
     /** Header de autorización para llamadas a la API local (este mismo servidor). */
     function authLocal() {
