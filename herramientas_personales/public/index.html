@@ -126,24 +126,21 @@
       flex: 1;
       overflow-x: auto;
     }
-    .tabbar button {
+    .tabbar a {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 9px 16px;
-      border: none;
       border-radius: 999px;
-      background: transparent;
       color: var(--ink-soft);
       font-size: 13.5px;
       font-weight: 600;
-      cursor: pointer;
+      text-decoration: none;
       white-space: nowrap;
       transition: background 0.15s, color 0.15s;
     }
-    .tabbar button svg { width: 15px; height: 15px; opacity: 0.85; }
-    .tabbar button:hover { background: var(--card-2); color: var(--ink); }
-    .tabbar button.activo { background: var(--primary-glow); color: var(--primary); }
+    .tabbar a svg { width: 15px; height: 15px; opacity: 0.85; }
+    .tabbar a:hover { background: var(--card-2); color: var(--ink); }
 
     button.logout {
       padding: 8px 16px;
@@ -305,13 +302,11 @@
 
     .resumen-conteo { font-size: 13px; color: var(--ink-soft); margin: 4px 0 16px; }
 
-    .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
-    .subtabs button {
-      padding: 7px 15px; border-radius: 999px; border: 1px solid var(--border);
-      background: transparent; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-soft);
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    .section-divider {
+      margin: 44px 0 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-soft);
     }
-    .subtabs button.activo { background: var(--primary); color: #0c0e12; border-color: var(--primary); }
 
     .sub-tabs-hojas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
     .sub-tabs-hojas button {
@@ -340,18 +335,18 @@
     <nav class="top">
       <div class="logo">CONSULTORA <b>PRISMA</b> <span>— Herramientas</span></div>
       <div class="tabbar">
-        <button data-tab="video" class="activo">
+        <a href="#video">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>
           Generador de videos
-        </button>
-        <button data-tab="limpieza">
+        </a>
+        <a href="#limpieza">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
           Limpieza de documentos
-        </button>
-        <button data-tab="analisis">
+        </a>
+        <a href="#analisis">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
           Análisis de datos
-        </button>
+        </a>
       </div>
       <button class="logout" id="boton-logout">Cerrar sesión</button>
     </nav>
@@ -400,7 +395,7 @@ banner (Ns): texto de cierre — la promoción</pre>
       </section>
 
       <!-- ================= TAB LIMPIEZA ================= -->
-      <section id="tab-limpieza" hidden>
+      <section id="tab-limpieza" class="section-divider">
         <div class="page-head">
           <p class="eyebrow">Documentos</p>
           <h1>Limpieza de documentos</h1>
@@ -426,99 +421,91 @@ banner (Ns): texto de cierre — la promoción</pre>
       </section>
 
       <!-- ================= TAB ANALISIS ================= -->
-      <section id="tab-analisis" hidden>
+      <section id="tab-analisis" class="section-divider">
         <div class="page-head">
           <p class="eyebrow">Panel interno</p>
           <h1>Análisis de datos</h1>
-          <p>Clientes del diagnóstico filtrados por estado, envío de mails a medida, y los datos de la planilla de Prisma en vivo.</p>
+          <p>Primero los datos del negocio, en vivo desde la planilla de Prisma. Después, según lo que vayas mirando y filtrando ahí, elegís a qué clientes escribirles.</p>
         </div>
 
-        <div class="subtabs">
-          <button data-subtab="clientes" class="activo">Clientes y mails</button>
-          <button data-subtab="sheet">Datos del Sheet</button>
+        <!-- ---- 1) DATOS DEL SHEET ---- -->
+        <div class="card">
+          <h2>Planilla de Prisma (Google Sheets)</h2>
+          <p class="hint">Todas las hojas, tal cual están, en vivo desde la misma planilla a la que se mandan los eventos del diagnóstico — sin subir ningún archivo. Actualizá cuando quieras ver los últimos cambios.</p>
+          <button class="accion" id="boton-actualizar-sheet">Actualizar desde Google Sheets</button>
+          <div id="estado-sheet" class="estado-msg"></div>
         </div>
 
-        <!-- ---- SUBTAB CLIENTES ---- -->
-        <section id="subtab-clientes">
-          <details class="config">
-            <summary>Configuración de conexión con Prisma (prisma_2)</summary>
-            <div class="contenido card">
-              <div class="campo">
-                <label for="input-api-base">URL del sitio de Prisma (donde vive la base de diagnósticos)</label>
-                <input type="url" id="input-api-base" placeholder="https://consultoraprisma.digital" />
-              </div>
-              <button class="secundaria" id="boton-guardar-api-base">Guardar</button>
-              <div id="estado-api-base" class="estado-msg"></div>
-            </div>
-          </details>
+        <div class="card" id="card-sheet-datos" hidden>
+          <h2 id="titulo-sheet-actual">Datos de la planilla</h2>
+          <p class="hint" id="fecha-sheet-actual"></p>
+          <div class="sub-tabs-hojas" id="sub-tabs-hojas"></div>
+          <div class="tabla-scroll">
+            <table class="datos" id="tabla-hoja"><tbody></tbody></table>
+          </div>
+        </div>
 
-          <div class="card">
-            <h2>Clientes por estado</h2>
-            <p class="hint">Elegí uno o más estados: se usan tanto para ver la lista como para definir a quién se le manda el mail de abajo.</p>
-            <div class="fila-estados" id="fila-estados"></div>
-            <button class="accion" id="boton-buscar">Buscar</button>
-            <div class="resumen-conteo" id="resumen-clientes"></div>
-            <div id="estado-clientes" class="estado-msg"></div>
-            <div class="tabla-scroll" style="margin-top:14px;">
-              <table class="datos" id="tabla-clientes">
-                <thead>
-                  <tr>
-                    <th>Nombre</th><th>Negocio</th><th>Email</th><th>Estado</th>
-                    <th>% Parte 1</th><th>% Completo</th><th>Diagnóstico</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+        <!-- ---- 2) CLIENTES POR ESTADO ---- -->
+        <details class="config">
+          <summary>Configuración de conexión con Prisma (prisma_2)</summary>
+          <div class="contenido card">
+            <div class="campo">
+              <label for="input-api-base">URL del sitio de Prisma (donde vive la base de diagnósticos)</label>
+              <input type="url" id="input-api-base" placeholder="https://consultoraprisma.digital" />
             </div>
+            <button class="secundaria" id="boton-guardar-api-base">Guardar</button>
+            <div id="estado-api-base" class="estado-msg"></div>
+          </div>
+        </details>
+
+        <div class="card">
+          <h2>Clientes por estado</h2>
+          <p class="hint">Elegí uno o más estados: se usan tanto para ver la lista como para definir a quién se le manda el mail de abajo.</p>
+          <div class="fila-estados" id="fila-estados"></div>
+          <button class="accion" id="boton-buscar">Buscar</button>
+          <div class="resumen-conteo" id="resumen-clientes"></div>
+          <div id="estado-clientes" class="estado-msg"></div>
+          <div class="tabla-scroll" style="margin-top:14px;">
+            <table class="datos" id="tabla-clientes">
+              <thead>
+                <tr>
+                  <th>Nombre</th><th>Negocio</th><th>Email</th><th>Estado</th>
+                  <th>% Parte 1</th><th>% Completo</th><th>Diagnóstico</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ---- 3) REDACTAR Y ENVIAR MAIL, AL GRUPO FILTRADO ARRIBA ---- -->
+        <div class="card">
+          <h2>Redactar y enviar mail</h2>
+          <p class="hint">Se manda al grupo que quedó filtrado arriba, a los que tengan mail cargado. Podés escribir el cuerpo en HTML (con estilos inline) o como texto simple.</p>
+
+          <div class="campo">
+            <label for="input-asunto">Asunto</label>
+            <input type="text" id="input-asunto" placeholder="Asunto del mail" />
           </div>
 
-          <div class="card">
-            <h2>Redactar y enviar mail</h2>
-            <p class="hint">Se manda a todos los clientes que coincidan con los estados marcados arriba y tengan mail cargado. Podés escribir el cuerpo en HTML (con estilos inline) o como texto simple.</p>
-
-            <div class="campo">
-              <label for="input-asunto">Asunto</label>
-              <input type="text" id="input-asunto" placeholder="Asunto del mail" />
-            </div>
-
-            <div class="campo">
-              <label for="input-cuerpo">Cuerpo (HTML o texto)</label>
-              <textarea id="input-cuerpo" rows="8" placeholder="&lt;p&gt;Hola {nombre}, ...&lt;/p&gt;"></textarea>
-            </div>
-
-            <div class="campo">
-              <label>Vista previa</label>
-              <div class="preview-html" id="preview-cuerpo"></div>
-            </div>
-
-            <div class="campo">
-              <label for="input-adjunto">Adjunto (opcional)</label>
-              <input type="file" id="input-adjunto" />
-            </div>
-
-            <button class="accion" id="boton-enviar">Enviar mail</button>
-            <div id="estado-envio" class="estado-msg"></div>
-          </div>
-        </section>
-
-        <!-- ---- SUBTAB SHEET ---- -->
-        <section id="subtab-sheet" hidden>
-          <div class="card">
-            <h2>Planilla de Prisma (Google Sheets)</h2>
-            <p class="hint">Datos en vivo de la misma planilla a la que se mandan los eventos del diagnóstico — todas las hojas, tal cual están, para el estudio del negocio. Actualizá cuando quieras ver los últimos cambios.</p>
-            <button class="accion" id="boton-actualizar-sheet">Actualizar desde Google Sheets</button>
-            <div id="estado-sheet" class="estado-msg"></div>
+          <div class="campo">
+            <label for="input-cuerpo">Cuerpo (HTML o texto)</label>
+            <textarea id="input-cuerpo" rows="8" placeholder="&lt;p&gt;Hola {nombre}, ...&lt;/p&gt;"></textarea>
           </div>
 
-          <div class="card" id="card-sheet-datos" hidden>
-            <h2 id="titulo-sheet-actual">Datos de la planilla</h2>
-            <p class="hint" id="fecha-sheet-actual"></p>
-            <div class="sub-tabs-hojas" id="sub-tabs-hojas"></div>
-            <div class="tabla-scroll">
-              <table class="datos" id="tabla-hoja"><tbody></tbody></table>
-            </div>
+          <div class="campo">
+            <label>Vista previa</label>
+            <div class="preview-html" id="preview-cuerpo"></div>
           </div>
-        </section>
+
+          <div class="campo">
+            <label for="input-adjunto">Adjunto (opcional)</label>
+            <input type="file" id="input-adjunto" />
+          </div>
+
+          <button class="accion" id="boton-enviar">Enviar mail</button>
+          <div id="estado-envio" class="estado-msg"></div>
+        </div>
       </section>
     </main>
 
@@ -637,27 +624,6 @@ banner (Ns): texto de cierre — la promoción</pre>
     });
 
     if (getToken(LS.tokenLocal)) mostrarApp();
-
-    // ============= TABS PRINCIPALES =============
-    document.querySelectorAll('.tabbar button[data-tab]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tabbar button[data-tab]').forEach((b) => b.classList.remove('activo'));
-        btn.classList.add('activo');
-        document.getElementById('tab-video').hidden = btn.dataset.tab !== 'video';
-        document.getElementById('tab-limpieza').hidden = btn.dataset.tab !== 'limpieza';
-        document.getElementById('tab-analisis').hidden = btn.dataset.tab !== 'analisis';
-      });
-    });
-
-    // ============= SUBTABS ANÁLISIS =============
-    document.querySelectorAll('.subtabs button[data-subtab]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.subtabs button[data-subtab]').forEach((b) => b.classList.remove('activo'));
-        btn.classList.add('activo');
-        document.getElementById('subtab-clientes').hidden = btn.dataset.subtab !== 'clientes';
-        document.getElementById('subtab-sheet').hidden = btn.dataset.subtab !== 'sheet';
-      });
-    });
 
     // ============= LIMPIEZA DE DOCUMENTOS =============
     const formLimpiar = document.getElementById('form-limpiar');
