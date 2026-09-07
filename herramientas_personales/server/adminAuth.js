@@ -63,7 +63,11 @@ function login(req, res) {
 
 function requireAdmin(req, res, next) {
   const auth = req.headers.authorization ?? '';
-  const token = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : '';
+  // Las etiquetas <img> no pueden mandar el header Authorization — para las
+  // pocas rutas que sirven una imagen directo desde un <img src="...">
+  // (previews de censura, miniaturas de banners) también aceptamos el
+  // token como ?token=, con el mismo chequeo de firma y vencimiento.
+  const token = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : req.query?.token || '';
   if (!token || !tokenValido(token)) {
     return res.status(401).json({ error: 'Sesión inválida o vencida. Volvé a iniciar sesión.' });
   }
