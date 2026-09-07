@@ -8,7 +8,7 @@ const { renderizarVideo, PLANTILLAS, listarBanners, guardarBannerNuevo, rutaImag
 const { login: adminLogin, requireAdmin } = require('./adminAuth');
 const { obtenerHojas, guardarActual, leerActual } = require('./googleSheets');
 const { extraerPosiciones } = require('./censura/extraerPosiciones');
-const { detectarSensibles } = require('./censura/detectar');
+const { detectarSensibles, cajaDesdeRango } = require('./censura/detectar');
 const { previsualizarPagina, generarPdfCensurado } = require('./censura/rasterizar');
 const { crearTrabajo, obtenerTrabajo, borrarTrabajo } = require('./censura/trabajos');
 
@@ -96,6 +96,12 @@ router.post('/censura/analizar', requireAdmin, uploadDocumentoCensura.single('do
       totalPaginas: paginas.length,
       paginas: paginas.map((p) => ({
         numero: p.numero,
+        // Los items (texto real + posición de cada fragmento) viajan acá
+        // para poder armar en el navegador una capa de texto invisible
+        // encima de la imagen — así el usuario puede seleccionar texto con
+        // el mouse, como en cualquier PDF, para marcar a mano algo que la
+        // detección automática no haya encontrado.
+        items: p.items.map((it) => ({ id: it.id, texto: it.texto, xPct: it.xPct, yPct: it.yPct, wPct: it.wPct, hPct: it.hPct })),
         detecciones: p.detecciones.map((d) => ({
           id: d.id,
           categoria: d.categoria,
@@ -127,7 +133,7 @@ router.get('/censura/pagina/:jobId/:numero', requireAdmin, async (req, res) => {
 });
 
 router.post('/censura/confirmar', requireAdmin, async (req, res) => {
-  const { jobId, desactivadas } = req.body || {};
+  const { jobId, desactivadas, manuales } = req.body || {};
   try {
     const trabajo = obtenerTrabajo(jobId);
     if (!trabajo) return res.status(404).json({ error: 'Ese análisis ya no existe (¿pasaron más de 30 minutos?).' });
@@ -137,6 +143,35 @@ router.post('/censura/confirmar', requireAdmin, async (req, res) => {
       ...p,
       detecciones: p.detecciones.map((d) => ({ ...d, activo: !idsDesactivados.has(d.id) })),
     }));
+
+    // Datos que el usuario marcó a mano (seleccionando texto sobre la
+    // vista previa) — vienen como referencias a los items originales
+    // (itemId + rango de caracteres), nunca como coordenadas ya calculadas
+    // por el navegador, así la posición final siempre sale del mismo
+    // cálculo que usamos para todo lo demás (cajaDesdeRango), sin confiar
+    // en nada que haya armado el cliente.
+    for (const manual of Array.isArray(manuales) ? manuales : []) {
+      const pagina = paginas.find((p) => p.numero === manual.numero);
+      if (!pagina) continue;
+      const itemsPorId = new Map(pagina.items.map((it) => [it.id, it]));
+      const cajas = [];
+      for (const frag of Array.isArray(manual.fragmentos) ? manual.fragmentos : []) {
+        const item = itemsPorId.get(frag.itemId);
+        if (!item) continue;
+        const inicio = Math.max(0, Math.min(item.texto.length, frag.inicio ?? 0));
+        const fin = Math.max(inicio, Math.min(item.texto.length, frag.fin ?? item.texto.length));
+        cajas.push(cajaDesdeRango(item, inicio, fin));
+      }
+      if (cajas.length > 0) {
+        pagina.detecciones.push({
+          id: `manual-${pagina.detecciones.length}-${Date.now()}`,
+          categoria: 'manual',
+          texto: (manual.texto || '').slice(0, 300),
+          activo: true,
+          cajas,
+        });
+      }
+    }
 
     const pdfFinal = await generarPdfCensurado(trabajo.pdfPath, paginas);
 

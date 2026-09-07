@@ -299,4 +299,4 @@ async function detectarSensibles(paginas) {
   return resultado;
 }
 
-module.exports = { detectarSensibles };
+module.exports = { detectarSensibles, cajaDesdeRango };

@@ -296,16 +296,34 @@
     .subir-banner input[type="file"] { width: auto; flex: 1; min-width: 160px; }
 
     /* --- Censura de documentos --- */
-    .pagina-censura { margin-bottom: 26px; }
+    .barra-censura { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .barra-censura .hint { margin: 0; }
+    button.modo-marcar {
+      padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--card-2); color: var(--ink); font-weight: 600; font-size: 12.5px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    button.modo-marcar.activo { background: var(--gold); border-color: var(--gold); color: #241a09; }
+    .pagina-censura { margin-bottom: 26px; display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+    .pagina-censura .columna-pdf { flex: 1 1 380px; min-width: 260px; }
+    .pagina-censura .columna-lista { flex: 1 1 260px; min-width: 220px; max-width: 360px; }
     .pagina-censura h3 { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; font-weight: 600; }
     .lienzo-pagina { position: relative; border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden; background: #000; }
-    .lienzo-pagina img { display: block; width: 100%; height: auto; }
+    .lienzo-pagina img { display: block; width: 100%; height: auto; -webkit-user-select: none; user-select: none; }
+    .capa-texto { position: absolute; inset: 0; line-height: 1; }
+    .capa-texto span {
+      position: absolute; transform-origin: 0 0; white-space: pre; overflow: hidden;
+      color: transparent; cursor: text; font-family: sans-serif;
+    }
+    .capa-texto.inactiva span { cursor: default; user-select: none; -webkit-user-select: none; }
+    .capa-texto span::selection { background: rgba(232, 188, 110, 0.55); }
     .caja-deteccion {
       position: absolute; background: rgba(15, 17, 20, 0.94); border: 1px solid rgba(232, 188, 110, 0.5);
-      border-radius: 2px; transition: background 0.15s, opacity 0.15s;
+      border-radius: 2px; transition: background 0.15s, opacity 0.15s; pointer-events: none;
     }
     .caja-deteccion.desactivada { background: rgba(240, 121, 108, 0.18); border-style: dashed; }
-    .lista-detecciones { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+    .caja-deteccion.manual { border-color: rgba(111, 168, 216, 0.7); }
+    .lista-detecciones { display: flex; flex-direction: column; gap: 6px; }
     .fila-deteccion {
       display: flex; align-items: center; gap: 10px; font-size: 12.5px;
       background: var(--card-2); border: 1px solid var(--border-soft);
@@ -314,10 +332,14 @@
     .fila-deteccion input { width: auto; margin: 0; accent-color: var(--primary); }
     .fila-deteccion .categoria {
       font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;
-      color: var(--primary); min-width: 100px;
+      color: var(--primary); min-width: 76px;
     }
-    .fila-deteccion .texto { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fila-deteccion .texto { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     .fila-deteccion.desactivada .texto { text-decoration: line-through; opacity: 0.6; }
+    .fila-deteccion .borrar-manual {
+      border: none; background: transparent; color: var(--ink-faint); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px;
+    }
+    .fila-deteccion .borrar-manual:hover { color: var(--error); }
 
     table.datos { width: 100%; border-collapse: collapse; font-size: 13px; }
     table.datos th, table.datos td {
@@ -475,6 +497,10 @@ banner (Ns): texto de cierre — la promoción</pre>
           <div id="estado-censura" class="estado-msg"></div>
 
           <div id="resultado-censura" hidden>
+            <div class="barra-censura">
+              <button type="button" class="modo-marcar" id="boton-modo-marcar">Censurar dato</button>
+              <p class="hint" id="hint-modo-marcar">Tocá "Censurar dato" y después seleccioná el texto que quieras tapar, directo sobre el documento.</p>
+            </div>
             <div id="paginas-censura"></div>
             <button type="button" class="accion ancho" id="boton-confirmar-censura">Descargar PDF censurado</button>
             <button type="button" class="secundaria ancho" id="boton-cancelar-censura" style="margin-top:10px;">
@@ -782,10 +808,53 @@ banner (Ns): texto de cierre — la promoción</pre>
       fecha_nacimiento: 'Fecha de nacimiento',
       nombre: 'Nombre',
       direccion: 'Dirección',
+      manual: 'Marcado a mano',
     };
+
+    function escaparHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // Misma lógica que server/censura/detectar.js (cajaDesdeRango) — se
+    // duplica acá SOLO para poder mostrar de inmediato, apenas seleccionás
+    // texto, un recuadro de vista previa en el mismo lugar donde va a
+    // terminar quedando. El cálculo que de verdad se usa para tapar el PDF
+    // final es el del servidor — este es nada más para que la pantalla no
+    // se quede "en blanco" hasta confirmar.
+    const PADDING_CARACTERES_CLIENTE = 1.4;
+    const MARGEN_VERTICAL_CLIENTE = 0.3;
+    function anchoRelativoCliente(c) {
+      if (/[0-9]/.test(c)) return 0.56;
+      if (c === ' ') return 0.28;
+      if ('.,:;\'"|!ilj'.includes(c)) return 0.32;
+      if ('mwMW'.includes(c)) return 0.92;
+      if (/[A-ZÁÉÍÓÚÑ]/.test(c)) return 0.68;
+      return 0.52;
+    }
+    function posicionRelativaCliente(texto, indice) {
+      let total = 0;
+      for (let i = 0; i < texto.length; i++) total += anchoRelativoCliente(texto[i]);
+      if (total === 0) return indice / (texto.length || 1);
+      let acumulado = 0;
+      for (let i = 0; i < indice; i++) acumulado += anchoRelativoCliente(texto[i]);
+      return acumulado / total;
+    }
+    function cajaDesdeRangoCliente(item, inicio, fin) {
+      const largo = item.texto.length || 1;
+      const desde = posicionRelativaCliente(item.texto, Math.round(Math.max(0, inicio - PADDING_CARACTERES_CLIENTE)));
+      const hasta = posicionRelativaCliente(item.texto, Math.round(Math.min(largo, fin + PADDING_CARACTERES_CLIENTE)));
+      return {
+        xPct: Math.max(0, item.xPct + item.wPct * desde),
+        yPct: Math.max(0, item.yPct - MARGEN_VERTICAL_CLIENTE),
+        wPct: item.wPct * (hasta - desde),
+        hPct: item.hPct + MARGEN_VERTICAL_CLIENTE * 2,
+      };
+    }
 
     let censuraJobId = null;
     let censuraPaginas = [];
+    let modoMarcarActivo = false;
+    let contadorManual = 0;
 
     const botonAnalizarCensura = document.getElementById('boton-analizar-censura');
     const estadoCensura = document.getElementById('estado-censura');
@@ -794,6 +863,87 @@ banner (Ns): texto de cierre — la promoción</pre>
     const botonConfirmarCensura = document.getElementById('boton-confirmar-censura');
     const botonCancelarCensura = document.getElementById('boton-cancelar-censura');
     const estadoConfirmarCensura = document.getElementById('estado-confirmar-censura');
+    const botonModoMarcar = document.getElementById('boton-modo-marcar');
+    const hintModoMarcar = document.getElementById('hint-modo-marcar');
+
+    function ajustarCapaTexto(lienzo) {
+      const img = lienzo.querySelector('img');
+      const capa = lienzo.querySelector('.capa-texto');
+      if (!img || !capa || !img.clientWidth || !img.clientHeight) return;
+      const anchoImg = img.clientWidth;
+      const altoImg = img.clientHeight;
+      capa.querySelectorAll('span').forEach((span) => {
+        const hPct = parseFloat(span.dataset.hpct);
+        const wPct = parseFloat(span.dataset.wpct);
+        const fontSizePx = Math.max(4, (hPct / 100) * altoImg * 0.82);
+        span.style.fontSize = fontSizePx + 'px';
+        span.style.transform = 'scaleX(1)';
+        const medidoPx = span.getBoundingClientRect().width;
+        const objetivoPx = (wPct / 100) * anchoImg;
+        if (medidoPx > 0 && objetivoPx > 0) {
+          span.style.transform = `scaleX(${objetivoPx / medidoPx})`;
+        }
+      });
+    }
+
+    function actualizarModoMarcar() {
+      botonModoMarcar.textContent = modoMarcarActivo ? 'Cancelar selección' : 'Censurar dato';
+      botonModoMarcar.classList.toggle('activo', modoMarcarActivo);
+      hintModoMarcar.textContent = modoMarcarActivo
+        ? 'Modo activo: arrastrá el mouse sobre el texto que quieras tapar — se marca apenas soltás.'
+        : 'Tocá "Censurar dato" y después seleccioná el texto que quieras tapar, directo sobre el documento.';
+      paginasCensuraEl.querySelectorAll('.capa-texto').forEach((c) => c.classList.toggle('inactiva', !modoMarcarActivo));
+    }
+
+    botonModoMarcar.addEventListener('click', () => {
+      modoMarcarActivo = !modoMarcarActivo;
+      window.getSelection()?.removeAllRanges();
+      actualizarModoMarcar();
+    });
+
+    function manejarSeleccion(pagina, capa) {
+      const seleccion = window.getSelection();
+      if (!modoMarcarActivo || !seleccion || seleccion.isCollapsed || seleccion.rangeCount === 0) return;
+      const rango = seleccion.getRangeAt(0);
+      if (!capa.contains(rango.commonAncestorContainer)) return;
+
+      const itemsPorId = new Map(pagina.items.map((it) => [it.id, it]));
+      const fragmentos = [];
+      const textos = [];
+      const cajas = [];
+
+      capa.querySelectorAll('span[data-item-id]').forEach((span) => {
+        if (!rango.intersectsNode(span)) return;
+        const nodoTexto = span.firstChild;
+        if (!nodoTexto) return;
+        const largo = nodoTexto.textContent.length;
+        const inicio = nodoTexto === rango.startContainer ? rango.startOffset : 0;
+        const fin = nodoTexto === rango.endContainer ? rango.endOffset : largo;
+        if (fin <= inicio) return;
+
+        const itemId = Number(span.dataset.itemId);
+        const item = itemsPorId.get(itemId);
+        if (!item) return;
+
+        fragmentos.push({ itemId, inicio, fin });
+        textos.push(item.texto.slice(inicio, fin));
+        cajas.push(cajaDesdeRangoCliente(item, inicio, fin));
+      });
+
+      seleccion.removeAllRanges();
+      if (fragmentos.length === 0) return;
+
+      pagina.detecciones.push({
+        id: `manual-local-${contadorManual++}`,
+        categoria: 'manual',
+        texto: textos.join(' '),
+        activo: true,
+        cajas,
+        fragmentos,
+        esManual: true,
+      });
+      renderizarPaginasCensura();
+    }
 
     function renderizarPaginasCensura() {
       paginasCensuraEl.innerHTML = censuraPaginas
@@ -802,9 +952,17 @@ banner (Ns): texto de cierre — la promoción</pre>
             .flatMap((d) =>
               d.cajas.map(
                 (c) => `
-              <div class="caja-deteccion${d.activo ? '' : ' desactivada'}" data-det="${d.id}"
+              <div class="caja-deteccion${d.activo ? '' : ' desactivada'}${d.esManual ? ' manual' : ''}" data-det="${d.id}"
                 style="left:${c.xPct}%; top:${c.yPct}%; width:${c.wPct}%; height:${c.hPct}%;"></div>`,
               ),
+            )
+            .join('');
+
+          const itemsHtml = p.items
+            .map(
+              (it) => `
+            <span data-item-id="${it.id}" data-hpct="${it.hPct}" data-wpct="${it.wPct}"
+              style="left:${it.xPct}%; top:${it.yPct}%; width:${it.wPct}%; height:${it.hPct}%;">${escaparHtml(it.texto)}</span>`,
             )
             .join('');
 
@@ -815,40 +973,77 @@ banner (Ns): texto de cierre — la promoción</pre>
               <label class="fila-deteccion${d.activo ? '' : ' desactivada'}" data-det-fila="${d.id}">
                 <input type="checkbox" data-toggle-det="${d.id}" ${d.activo ? 'checked' : ''} />
                 <span class="categoria">${NOMBRES_CATEGORIA[d.categoria] || d.categoria}</span>
-                <span class="texto">${d.texto}</span>
+                <span class="texto">${escaparHtml(d.texto)}</span>
+                ${d.esManual ? `<button type="button" class="borrar-manual" data-borrar="${d.id}" title="Quitar">✕</button>` : ''}
               </label>`,
                 )
                 .join('')
             : '<p class="hint">No se encontró nada sensible en esta página.</p>';
 
           return `
-            <div class="pagina-censura">
-              <h3>Página ${p.numero}</h3>
-              <div class="lienzo-pagina">
-                <img src="${urlConToken(`/api/censura/pagina/${censuraJobId}/${p.numero}`)}" alt="Página ${p.numero}" />
-                ${cajasHtml}
+            <div class="pagina-censura" data-pagina="${p.numero}">
+              <div class="columna-pdf">
+                <h3>Página ${p.numero}</h3>
+                <div class="lienzo-pagina">
+                  <img src="${urlConToken(`/api/censura/pagina/${censuraJobId}/${p.numero}`)}" alt="Página ${p.numero}" draggable="false" />
+                  ${cajasHtml}
+                  <div class="capa-texto${modoMarcarActivo ? '' : ' inactiva'}">${itemsHtml}</div>
+                </div>
               </div>
-              <div class="lista-detecciones">${listaHtml}</div>
+              <div class="columna-lista">
+                <h3>Datos encontrados</h3>
+                <div class="lista-detecciones">${listaHtml}</div>
+              </div>
             </div>`;
         })
         .join('');
 
       paginasCensuraEl.querySelectorAll('[data-toggle-det]').forEach((input) => {
         input.addEventListener('change', () => {
-          const id = Number(input.dataset.toggleDet);
+          const id = input.dataset.toggleDet;
           for (const p of censuraPaginas) {
-            const det = p.detecciones.find((d) => d.id === id);
+            const det = p.detecciones.find((d) => String(d.id) === id);
             if (det) det.activo = input.checked;
           }
           paginasCensuraEl.querySelectorAll(`[data-det="${id}"]`).forEach((c) => c.classList.toggle('desactivada', !input.checked));
           paginasCensuraEl.querySelector(`[data-det-fila="${id}"]`)?.classList.toggle('desactivada', !input.checked);
         });
       });
+
+      paginasCensuraEl.querySelectorAll('[data-borrar]').forEach((boton) => {
+        boton.addEventListener('click', () => {
+          const id = boton.dataset.borrar;
+          for (const p of censuraPaginas) {
+            p.detecciones = p.detecciones.filter((d) => String(d.id) !== id);
+          }
+          renderizarPaginasCensura();
+        });
+      });
+
+      paginasCensuraEl.querySelectorAll('.pagina-censura').forEach((el) => {
+        const numero = Number(el.dataset.pagina);
+        const pagina = censuraPaginas.find((p) => p.numero === numero);
+        const lienzo = el.querySelector('.lienzo-pagina');
+        const capa = el.querySelector('.capa-texto');
+        const img = el.querySelector('img');
+
+        const ajustar = () => ajustarCapaTexto(lienzo);
+        if (img.complete && img.naturalHeight > 0) ajustar();
+        else img.addEventListener('load', ajustar, { once: true });
+
+        capa.addEventListener('mouseup', () => manejarSeleccion(pagina, capa));
+      });
     }
+
+    window.addEventListener('resize', () => {
+      paginasCensuraEl.querySelectorAll('.lienzo-pagina').forEach((lienzo) => ajustarCapaTexto(lienzo));
+    });
 
     function resetearCensura() {
       censuraJobId = null;
       censuraPaginas = [];
+      modoMarcarActivo = false;
+      actualizarModoMarcar();
       resultadoCensura.hidden = true;
       paginasCensuraEl.innerHTML = '';
       estadoCensura.textContent = '';
@@ -902,7 +1097,12 @@ banner (Ns): texto de cierre — la promoción</pre>
 
     botonConfirmarCensura.addEventListener('click', async () => {
       if (!censuraJobId) return;
-      const desactivadas = censuraPaginas.flatMap((p) => p.detecciones.filter((d) => !d.activo).map((d) => d.id));
+      const desactivadas = censuraPaginas.flatMap((p) => p.detecciones.filter((d) => !d.esManual && !d.activo).map((d) => d.id));
+      const manuales = censuraPaginas.flatMap((p) =>
+        p.detecciones
+          .filter((d) => d.esManual && d.activo)
+          .map((d) => ({ numero: p.numero, fragmentos: d.fragmentos, texto: d.texto, categoria: d.categoria })),
+      );
 
       botonConfirmarCensura.disabled = true;
       botonConfirmarCensura.textContent = 'Generando PDF…';
@@ -913,7 +1113,7 @@ banner (Ns): texto de cierre — la promoción</pre>
         const res = await fetch('/api/censura/confirmar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authLocal() },
-          body: JSON.stringify({ jobId: censuraJobId, desactivadas }),
+          body: JSON.stringify({ jobId: censuraJobId, desactivadas, manuales }),
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
