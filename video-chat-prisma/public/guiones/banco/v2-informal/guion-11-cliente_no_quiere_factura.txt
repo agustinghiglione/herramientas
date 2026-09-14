@@ -1,0 +1,21 @@
+# ===================================================================
+# GUION 11 — Prisma / cliente_no_quiere_factura (freelancers y plataformas, tono informal leve, cierre en texto)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (2.6s): un cliente no me quiere pagar si le facturo
+
+usuario envia
+
+chat responde (5.8s):
+Uy, esa nos la trajeron un montón de veces — y ojo, ahí el que se termina complicando sos vos, no él.
+
+Facturar no es negociable si querés estar en regla — lo que sí podés negociar es el precio final para que te cierre igual con la factura adentro.
+
+Si no sabés cómo plantear ese numerito sin perder el cliente, en ++Consultora Prisma++ te ayudan a armar la propuesta bien, no solo la parte de ARCA.
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

@@ -1,0 +1,21 @@
+# ===================================================================
+# GUION 14 — Prisma / part_time_y_monotributo (freelancers y plataformas, tono informal leve, cierre en texto)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (3.2s): me ofrecen part time y no sé si pierdo el monotributo
+
+usuario envia
+
+chat responde (5.8s):
+Buena pregunta antes de aceptar, no después.
+
+Podés estar en relación de dependencia y tener monotributo por tu actividad independiente al mismo tiempo — son cosas separadas, pero hay que declararlas bien las dos.
+
+Antes de firmar nada, en ++Consultora Prisma++ te revisan cómo te conviene declarar cada cosa para no terminar pagando de más.
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

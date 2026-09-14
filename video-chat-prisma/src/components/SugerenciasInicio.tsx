@@ -1,6 +1,7 @@
 import React from 'react';
 import { interpolate } from 'remotion';
 import { Image, Pencil, Globe, LucideIcon } from 'lucide-react';
+import { MARGEN_SEGURO_H } from '../margenSeguro';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
@@ -43,7 +44,18 @@ export const SugerenciasInicio: React.FC<Props> = ({ frame, frameFadeOut }) => {
   if (opacidad <= 0) return null;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 28px 26px', opacity: opacidad }}>
+    // Horizontal +MARGEN_SEGURO_H sobre el original (28) — margen de
+    // seguridad contra el recorte de TikTok, ver margenSeguro.ts.
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: `0 ${28 + MARGEN_SEGURO_H}px 26px`,
+        opacity: opacidad,
+      }}
+    >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
         {SUGERENCIAS.map((s, i) => {
           const Icono = s.icono;

@@ -3,6 +3,7 @@ import { interpolate } from 'remotion';
 import type { BloqueContenido } from '../guion';
 import { revelarContenido } from '../guion';
 import { ContenidoMensaje } from './ContenidoMensaje';
+import { MARGEN_SEGURO_H } from '../margenSeguro';
 
 export interface MensajeSimple {
   rol: 'usuario' | 'chat';
@@ -129,7 +130,11 @@ export const ListaMensajes: React.FC<Props> = ({ frame, historial, respondiendo 
     <div
       style={{
         flex: 1,
-        padding: '36px 32px',
+        // Horizontal +MARGEN_SEGURO_H sobre el original (32) — margen de
+        // seguridad contra el recorte de TikTok, ver margenSeguro.ts. El
+        // vertical (36) es espacio interno entre el header y el primer
+        // mensaje, no toca el borde del cuadro, así que queda igual.
+        padding: `36px ${32 + MARGEN_SEGURO_H}px`,
         display: 'flex',
         flexDirection: 'column',
         // Los mensajes se anclan abajo y lo viejo se recorta arriba — así la

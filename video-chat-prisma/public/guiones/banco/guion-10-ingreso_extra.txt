@@ -1,0 +1,26 @@
+# ===================================================================
+# GUION 10 — Prisma / ingreso_extra (freelancers y trabajadores de plataformas)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (3.2s): tengo un ingreso extra y no sé si me pasa de categoría
+
+usuario envia
+
+chat responde (6.5s):
+Che, mezclar ingresos de varios lados sin sumarlos bien es más común de lo que parece.
+
+Lo que importa es la suma total de ingresos de la actividad, vengan de un solo lado o de varios — ahí es donde más gente se pasa de categoría sin darse cuenta.
+
+Honestamente, si yo fuera vos y quisiera sumar esto bien, no lo pensaría dos veces:
+
+tabla:
+🧩 | Para sumar todo bien | Diagnóstico Prisma® | Te dice gratis si ya deberías recategorizarte | consultoraprisma.digital
+🤝 | Para no pasarte de categoría | Consultora Prisma | Te ordenan todos tus ingresos con vos | consultoraprisma.digital
+fin tabla
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

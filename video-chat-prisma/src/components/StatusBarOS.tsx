@@ -1,4 +1,5 @@
 import React from 'react';
+import { MARGEN_SEGURO_H, MARGEN_SEGURO_V } from '../margenSeguro';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
@@ -60,9 +61,11 @@ export const StatusBarOS: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingLeft: 65,
-        paddingRight: 65,
-        paddingTop: 22,
+        // +MARGEN_SEGURO_* sobre los valores originales (65 / 22) — margen
+        // de seguridad contra el recorte de TikTok, ver margenSeguro.ts.
+        paddingLeft: 65 + MARGEN_SEGURO_H,
+        paddingRight: 65 + MARGEN_SEGURO_H,
+        paddingTop: 22 + MARGEN_SEGURO_V,
         flexShrink: 0,
       }}
     >

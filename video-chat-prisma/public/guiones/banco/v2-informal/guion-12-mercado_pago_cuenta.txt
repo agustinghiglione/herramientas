@@ -1,0 +1,21 @@
+# ===================================================================
+# GUION 12 — Prisma / mercado_pago_cuenta (freelancers y plataformas, tono informal leve, cierre en texto)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (2.8s): cobro por mercado pago y no sé si eso ya cuenta
+
+usuario envia
+
+chat responde (5.8s):
+Sí, cuenta igual — no importa por dónde te llegue la plata, importa que corresponda a tu actividad.
+
+La factura la tenés que emitir apenas cobrás, no cuando te acordás — así no se te acumulan meses sin declarar.
+
+Si ya se te juntó un quilombo de cobros sin facturar, en ++Consultora Prisma++ te ayudan a ponerlo en orden sin que se vuelva un dolor de cabeza.
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

@@ -2,6 +2,7 @@ import React from 'react';
 import { Composition, staticFile } from 'remotion';
 import { ChatVideo } from './ChatVideo';
 import { parsearGuion } from './guion';
+import { PerroWhatsApp, duracionPerroWhatsApp } from './PerroWhatsApp';
 
 const FPS = 30;
 const ANCHO = 1080;
@@ -19,29 +20,47 @@ const ALTO = 1920; // 9:16, formato TikTok
  */
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="ChatVideo"
-      component={ChatVideo}
-      fps={FPS}
-      width={ANCHO}
-      height={ALTO}
-      durationInFrames={300}
-      defaultProps={{ guionTexto: '', bannerImagenDisponible: false }}
-      calculateMetadata={async () => {
-        const res = await fetch(staticFile('guiones/actual.txt'));
-        const guionTexto = await res.text();
-        const { duracionTotal } = parsearGuion(guionTexto, FPS);
-        // El banner final ahora es una imagen ya diseñada (ver
-        // public/banners/actual.png) — se chequea acá, en Node, si existe
-        // antes de renderizar. Si todavía no se subió ninguna, ChatVideo usa
-        // el banner de texto programático como respaldo, para no romper el
-        // render mientras el banner definitivo se sigue trabajando aparte.
-        const resBanner = await fetch(staticFile('banners/actual.png'));
-        return {
-          durationInFrames: duracionTotal,
-          props: { guionTexto, bannerImagenDisponible: resBanner.ok },
-        };
-      }}
-    />
+    <>
+      <Composition
+        id="ChatVideo"
+        component={ChatVideo}
+        fps={FPS}
+        width={ANCHO}
+        height={ALTO}
+        durationInFrames={300}
+        defaultProps={{ guionTexto: '', bannerImagenDisponible: false }}
+        calculateMetadata={async () => {
+          const res = await fetch(staticFile('guiones/actual.txt'));
+          const guionTexto = await res.text();
+          const { duracionTotal } = parsearGuion(guionTexto, FPS);
+          // El banner final ahora es una imagen ya diseñada (ver
+          // public/banners/actual.png) — se chequea acá, en Node, si existe
+          // antes de renderizar. Si todavía no se subió ninguna, ChatVideo usa
+          // el banner de texto programático como respaldo, para no romper el
+          // render mientras el banner definitivo se sigue trabajando aparte.
+          const resBanner = await fetch(staticFile('banners/actual.png'));
+          return {
+            durationInFrames: duracionTotal,
+            props: { guionTexto, bannerImagenDisponible: resBanner.ok },
+          };
+        }}
+      />
+
+      {/*
+        "El perro y el veterinario" — herramienta nueva, separada de
+        ChatVideo (ver src/PerroWhatsApp.tsx). Para renderizarla:
+          npx remotion render PerroWhatsApp out/perro.mp4
+        El guion de este anuncio (mensaje, contacto, duraciones) se edita
+        arriba de src/PerroWhatsApp.tsx, no acá.
+      */}
+      <Composition
+        id="PerroWhatsApp"
+        component={PerroWhatsApp}
+        fps={FPS}
+        width={ANCHO}
+        height={ALTO}
+        durationInFrames={duracionPerroWhatsApp(FPS)}
+      />
+    </>
   );
 };

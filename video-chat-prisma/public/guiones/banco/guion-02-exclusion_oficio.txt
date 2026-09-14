@@ -1,0 +1,26 @@
+# ===================================================================
+# GUION 02 — Prisma / exclusion_oficio (freelancers y trabajadores de plataformas)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (2.8s): arca me excluyó del monotributo y no sé por qué
+
+usuario envia
+
+chat responde (6.5s):
+Uf, la exclusión de oficio asusta porque llega sin aviso previo.
+
+Lo importante es que tenés un plazo para presentar el descargo o volver a inscribirte — dejarlo pasar es lo que más complica todo después.
+
+Honestamente, si yo fuera vos y quisiera resolver esto rápido, no lo pensaría dos veces:
+
+tabla:
+🧩 | Para entender qué pasó | Diagnóstico Prisma® | Te muestra gratis por qué te excluyeron y qué hacer | consultoraprisma.digital
+🤝 | Para no perder el plazo | Consultora Prisma | Te arman el descargo con vos, a tiempo | consultoraprisma.digital
+fin tabla
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

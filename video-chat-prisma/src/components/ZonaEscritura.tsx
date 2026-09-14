@@ -2,6 +2,7 @@ import React from 'react';
 import { interpolate } from 'remotion';
 import { Smile, Mic } from 'lucide-react';
 import { estadoTipeo } from '../guion';
+import { MARGEN_SEGURO_H, MARGEN_SEGURO_V } from '../margenSeguro';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
@@ -259,7 +260,9 @@ function HomeDock() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 46px',
+        // +MARGEN_SEGURO_H sobre el original (46) — margen de seguridad
+        // contra el recorte de TikTok, ver margenSeguro.ts.
+        padding: `0 ${46 + MARGEN_SEGURO_H}px`,
       }}
     >
       <Smile color="#FFFFFF" size={34} strokeWidth={2} />
@@ -330,12 +333,17 @@ export const ZonaEscritura: React.FC<Props> = ({ frame, escribiendo, respondiend
   const estadoBoton: 'idle' | 'escribiendo' | 'respondiendo' = escribiendo ? 'escribiendo' : respondiendo ? 'respondiendo' : 'idle';
 
   return (
-    <div style={{ marginTop: 'auto' }}>
-      {/* Espacio inferior subido de 20 a 46px — contra una captura real de
-          referencia, el campo de texto no queda pegado al borde de abajo,
-          deja un leve margen (más notorio todavía cuando el teclado está
-          escondido y no hay nada debajo que lo empuje). */}
-      <div style={{ padding: '0 28px 46px' }}>
+    // paddingBottom acá (no en cada hijo) para que el margen de seguridad
+    // vertical proteja el borde de abajo pase lo que pase esté el teclado
+    // visible o no — si no, sumaría dos veces cuando el teclado está
+    // escondido (una vez acá y otra en el padding del campo de texto).
+    <div style={{ marginTop: 'auto', paddingBottom: MARGEN_SEGURO_V }}>
+      {/* Horizontal +MARGEN_SEGURO_H sobre el original (28) — margen de
+          seguridad contra el recorte de TikTok, ver margenSeguro.ts.
+          Espacio inferior (46) sin tocar: ya viene subido de 20 a 46px
+          contra una captura real de referencia, para que el campo de texto
+          no quede pegado al borde de abajo del teclado. */}
+      <div style={{ padding: `0 ${28 + MARGEN_SEGURO_H}px 46px` }}>
         <div
           style={{
             background: '#171717',

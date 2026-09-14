@@ -5,7 +5,8 @@
   "description": "Motor en React/Remotion para generar videos verticales que simulan una conversación de chat, a partir de un guion de texto plano.",
   "scripts": {
     "start": "remotion studio",
-    "render": "remotion render ChatVideo out/video.mp4"
+    "render": "remotion render ChatVideo out/video.mp4",
+    "render:perro": "remotion render PerroWhatsApp out/perro.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",

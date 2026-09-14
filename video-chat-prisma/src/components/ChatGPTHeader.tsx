@@ -1,6 +1,7 @@
 import React from 'react';
 import { interpolate } from 'remotion';
 import { Sparkle } from 'lucide-react';
+import { MARGEN_SEGURO_H } from '../margenSeguro';
 
 const FUENTE_SISTEMA = '-apple-system, "SF Pro Text", Inter, sans-serif';
 
@@ -107,7 +108,9 @@ export const ChatGPTHeader: React.FC<{ progreso: number }> = ({ progreso }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 38px',
+        // +MARGEN_SEGURO_H sobre el original (38) — margen de seguridad
+        // contra el recorte de TikTok, ver margenSeguro.ts.
+        padding: `0 ${38 + MARGEN_SEGURO_H}px`,
       }}
     >
       {/* Izquierda: menú fijo + píldora que se encoge hacia él. */}

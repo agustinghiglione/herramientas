@@ -1,0 +1,21 @@
+# ===================================================================
+# GUION 13 — Prisma / factura_a_vs_c (freelancers y plataformas, tono informal leve, cierre en texto)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (2.5s): me piden factura a y yo solo doy factura c
+
+usuario envia
+
+chat responde (5.8s):
+Tranquilo, no es que estés facturando mal.
+
+Como monotributista das factura C, y la A es de otro régimen — no depende de vos, así que explicárselo al cliente así de simple suele alcanzar.
+
+Si querés tener esa explicación lista para mandar por WhatsApp sin trabarte, en ++Consultora Prisma++ te la arman clarita.
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital

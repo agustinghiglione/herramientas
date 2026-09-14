@@ -1,0 +1,26 @@
+# ===================================================================
+# GUION 01 — Prisma / recategorizacion (freelancers y trabajadores de plataformas)
+# ===================================================================
+
+esperar (0.3s)
+
+usuario escribe (2.4s): me recategorizaron y ahora pago el doble
+
+usuario envia
+
+chat responde (6.5s):
+Che, esto le pasa a un montón de gente en cada recategorización.
+
+Lo que casi nadie hace es mirar el tope de su categoría todos los meses — no solo cuando llega el aviso de ARCA. Así nunca te agarra de sorpresa.
+
+Sinceramente, si yo fuera vos y quisiera dejar de vivir con esa duda, no lo pensaría dos veces:
+
+tabla:
+🧩 | Para ubicarte ya | Diagnóstico Prisma® | Te dice gratis en qué categoría real deberías estar | consultoraprisma.digital
+🤝 | Para no recategorizarte solo | Consultora Prisma | Te lo revisan con vos antes de que ARCA te avise | consultoraprisma.digital
+fin tabla
+---
+
+captura
+
+banner (2.2s): Diagnóstico gratuito en consultoraprisma.digital
