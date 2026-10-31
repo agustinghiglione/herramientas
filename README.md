@@ -1,16 +1,17 @@
 # herramientas
 
-Repositorio de las herramientas personales de Consultora Prisma. Cada
-subcarpeta es un proyecto independiente con su propio package.json:
+Repositorio de las herramientas personales de Consultora Prisma.
 
-- `herramientas_personales/` — sitio web con herramientas (Node/Express).
-  Primera herramienta: limpieza de documentos con IA.
-- `video-chat-prisma/` — motor en React/Remotion para generar videos de
-  TikTok que simulan una conversación de chat.
+- `herramientas_personales/` — sitio web (Node/Express) en herramientas.consultoraprisma.digital.
+  La raíz abre **Mi panel** (`/crm.html`, CRM personal). También está **Análisis de datos**
+  (`/analisis.html`), conectado a la planilla de Prisma.
+
+El generador de videos de chat y la limpieza de documentos se quitaron el 31/10/2026
+(siguen en el historial de git si alguna vez hacen falta).
 
 ## CRM personal (`herramientas_personales` → /crm.html)
 
-Panel personal dentro de Herramientas, con la misma contraseña (`ADMIN_PASSWORD`):
+Panel personal (página de inicio de Herramientas), con la misma contraseña (`ADMIN_PASSWORD`):
 
 - **Hoy:** objetivos del día con checklist, piezas para publicar con todos los detalles (descripción, hashtags, stickers, link UTM y pedido para la IA, con botón de copiar), agenda personal y próximos días.
 - **Semana / Mes:** calendario con el plan de Instagram, eventos personales y objetivos.

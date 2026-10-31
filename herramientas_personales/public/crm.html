@@ -122,7 +122,7 @@
   .celda .mas { font-size: 11px; color: var(--ink-faint); }
 
   /* ---------- subir ---------- */
-  .drop { border: 2px dashed var(--border); border-radius: 20px; padding: 56px 24px; text-align: center; transition: .15s; cursor: pointer; background: var(--bg-soft); }
+  .drop { display: block; width: 100%; border: 2px dashed var(--border); border-radius: 20px; padding: 56px 24px; text-align: center; transition: .15s; cursor: pointer; background: var(--bg-soft); }
   .drop.sobre { border-color: var(--primary); background: var(--primary-glow); }
   .drop svg { width: 44px; height: 44px; color: var(--primary); }
   .drop h3 { margin: 12px 0 6px; font-size: 18px; }
@@ -193,7 +193,7 @@
     <button class="nav-btn" data-vista="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Subir plan</button>
     <button class="nav-btn" data-vista="recordatorios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Recordatorios</button>
     <div class="nav-sep"></div>
-    <a class="nav-link" href="/">← Herramientas</a>
+    <a class="nav-link" href="/analisis.html">Análisis de datos</a>
     <button class="nav-link" id="salir" style="border:0;background:none;text-align:left">Cerrar sesión</button>
   </aside>
   <main id="main"></main>
@@ -390,13 +390,24 @@ async function vistaSubir(main) {
   const drop = $('#drop'), input = $('#archivo');
   const subir = async (file) => {
     if (!file) return;
-    const out = $('#resultado'); out.innerHTML = '<div class="card vacio">Leyendo el Excel…</div>';
-    const fd = new FormData(); fd.append('archivo', file);
+    const out = $('#resultado');
+    if (!/\.xlsx$/i.test(file.name)) { out.innerHTML = '<div class="card" style="color:var(--error)">Tiene que ser el Excel del plan (.xlsx).</div>'; return; }
+    out.innerHTML = '<div class="card vacio">Leyendo el Excel…</div>';
+    // Se lee el archivo antes de mandarlo: si está abierto en Excel o solo en la nube de
+    // OneDrive, el navegador no puede leerlo y el envío falla con un "Failed to fetch" sin explicación.
+    let contenido;
+    try { contenido = await file.arrayBuffer(); }
+    catch { out.innerHTML = '<div class="card" style="color:var(--error)">No pude leer el archivo. Cerralo en Excel y, si está en OneDrive, marcalo como "Mantener siempre en este dispositivo". Después volvé a arrastrarlo.</div>'; return; }
+    const fd = new FormData(); fd.append('archivo', new Blob([contenido], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), file.name);
     try {
       const x = await api('/plan', { method: 'POST', body: fd });
       out.innerHTML = `<div class="card"><h2 style="color:var(--ok)">Plan cargado · semana del ${corto(x.lunes)}</h2><p style="margin:0;color:var(--ink-soft)">${x.piezas} piezas (${x.nuevas} nuevas, ${x.actualizadas} actualizadas) · ${x.tareasNuevas} objetivos nuevos.</p><div class="acciones" style="justify-content:flex-start"><button class="btn primario" id="ver-semana">Ver la semana</button></div></div>`;
       $('#ver-semana').onclick = () => { S.ancla = x.lunes; irA('semana'); };
-    } catch (e) { out.innerHTML = `<div class="card" style="color:var(--error)">${esc(e.message)}</div>`; }
+    } catch (e) {
+      const msg = /failed to fetch|networkerror/i.test(e.message) ? 'Se cortó la conexión con el servidor al subir el archivo. Probá de nuevo; si sigue, avisame.' : e.message;
+      out.innerHTML = `<div class="card" style="color:var(--error)">${esc(msg)}</div>`;
+    }
+    input.value = '';
   };
   input.onchange = () => subir(input.files[0]);
   ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('sobre'); }));
