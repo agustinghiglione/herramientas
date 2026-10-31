@@ -65,18 +65,29 @@ function tareasDePieza(c, lunes) {
   const tipo = tipoDe(c.formato);
   const idea = c.idea_ganadora || c.formato;
   const diaPub = (c.dia || NOMBRES[diaSemana(c.fecha)]).toLowerCase();
+  const esReel = tipo === 'reel' || tipo === 'quiz';
+  // Reels de prueba de Instagram: solo si el plan lo indica con una línea "Prueba: …" en
+  // contenido_a_crear (hace falta un mínimo de seguidores; hasta entonces se publica directo).
+  const conPrueba = esReel && /(^|\n)\s*Prueba:/.test(c.contenido_a_crear || '');
   const t = [{
     clave: `pub:${c.fecha}:${tipo}`, fecha: c.fecha, ref: c.id,
-    titulo: `Publicar ${c.formato.toLowerCase()}: ${idea}`,
-    detalle: tipo === 'historia' ? 'Con los stickers interactivos indicados.' : 'Con la descripción y los hashtags del plan.',
+    titulo: conPrueba ? `Compartir con seguidores el ${c.formato.toLowerCase()}: ${idea}` : `Publicar ${c.formato.toLowerCase()} en Instagram y Facebook: ${idea}`,
+    detalle: tipo === 'historia' ? 'Con los stickers interactivos indicados. Compartir también en la historia de Facebook.'
+      : conPrueba ? 'Si la prueba ganó, usá el botón "Compartir" del reel de prueba (no lo resubas). Si no ganó: cambiá solo el gancho y volvé a probarlo.'
+      : 'Con la descripción y los hashtags del plan. Activá "Compartir en Facebook" (o programalo en Meta Business Suite) y usá el link de Facebook en la descripción de Facebook.',
   }];
+  if (conPrueba) {
+    const diaProd = sumarDias(c.fecha, -1);
+    t.push({ clave: `trial:${c.fecha}:${tipo}`, fecha: diaProd, ref: c.id, titulo: `Subir como reel de prueba: ${idea}`, detalle: 'Interruptor "Prueba" en la última pantalla. Misma descripción y hashtags del plan. Lo ven solo personas que no te siguen.' });
+    t.push({ clave: `eval:${c.fecha}:${tipo}`, fecha: c.fecha, ref: c.id, hora: '18:00', titulo: `Revisar el reel de prueba y decidir: ${idea}`, detalle: 'Compartir si el tiempo promedio es ≥ 40 % de la duración o compartidos + guardados ≥ 2 % del alcance. Anotar los números en el registro de pruebas.' });
+  }
   if (tipo === 'reel') {
     const dia = sumarDias(c.fecha, -1);
     t.push({ clave: `prod:${c.fecha}:reel`, fecha: dia, ref: c.id, titulo: `Producir en Flow el reel del ${diaPub}: ${idea}`, detalle: 'Máximo 50 créditos: 3 clips nuevos de Clara + clip del banco + imágenes de apoyo. Armarlo en Escenas y editar subtítulos.' });
   } else if (tipo === 'carrusel' || tipo === 'historia') {
     t.push({ clave: `prod:${c.fecha}:${tipo}`, fecha: domingoPrevio, ref: c.id, titulo: `Crear con IA las imágenes: ${c.formato.toLowerCase()} del ${diaPub}`, detalle: 'Pegar el pedido para la IA en Nano Banana (Flow, 0 créditos) o Gemini y elegir la mejor variante.' });
   } else if (tipo === 'quiz') {
-    t.push({ clave: `prod:${c.fecha}:quiz`, fecha: domingoPrevio, ref: c.id, titulo: 'Revisar el reel quiz y elegir el audio', detalle: 'El MP4 y la portada están en instagram/reels/quiz/. Audio instrumental al 10-20 %.' });
+    t.push({ clave: `prod:${c.fecha}:quiz`, fecha: sumarDias(c.fecha, -1), ref: c.id, titulo: 'Revisar el reel quiz y elegir el audio', detalle: 'El MP4 y la portada están en instagram/reels/quiz/. Audio instrumental al 10-20 %.' });
   }
   if (/^s[ií]/i.test(c.revision_contador)) {
     t.push({ clave: `cont:${c.fecha}:${tipo}`, fecha: domingoPrevio, ref: c.id, titulo: `Pasar al contador: ${idea}`, detalle: 'Tiene datos impositivos: no publicar sin su visto bueno.' });
