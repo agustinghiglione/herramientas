@@ -192,6 +192,7 @@
     <button class="nav-btn" data-vista="mes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>Mes</button>
     <button class="nav-btn" data-vista="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Subir plan</button>
     <button class="nav-btn" data-vista="recordatorios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Recordatorios</button>
+    <button class="nav-btn" data-vista="flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg>Guía Flow</button>
     <div class="nav-sep"></div>
     <a class="nav-link" href="/analisis.html">Análisis de datos</a>
     <button class="nav-link" id="salir" style="border:0;background:none;text-align:left">Cerrar sesión</button>
@@ -200,6 +201,7 @@
 </div>
 
 <div id="modal-raiz"></div>
+<script src="/guia-flow.js"></script>
 
 <script>
 // ================= sesión (la misma que la página de Herramientas) =================
@@ -266,6 +268,7 @@ async function render() {
     if (S.vista === 'mes') return await vistaMes(main);
     if (S.vista === 'subir') return await vistaSubir(main);
     if (S.vista === 'recordatorios') return await vistaRecordatorios(main);
+    if (S.vista === 'flow') return vistaFlow(main);
   } catch (e) { if (e.message !== 'Sesión vencida') main.innerHTML = `<div class="card vacio">No se pudo cargar: ${esc(e.message)}</div>`; }
 }
 
@@ -475,7 +478,8 @@ function abrirPieza(id) {
     ${bloque('Llamado a la acción', c.cta)}
     ${bloque('Link con UTM', c.link_utm, { copiar: 'link_utm' })}
     ${bloque('Texto alternativo', c.texto_alternativo, { copiar: 'texto_alternativo' })}
-    <div class="acciones"><button class="btn peligro" id="borrar-pieza">Quitar del calendario</button><button class="btn" id="cerrar-m">Cerrar</button></div>`, true);
+    <div class="acciones">${tipo(c.formato) === 'reel' ? '<button class="btn" id="ir-flow">¿Qué modelo uso en Flow?</button>' : ''}<button class="btn peligro" id="borrar-pieza">Quitar del calendario</button><button class="btn" id="cerrar-m">Cerrar</button></div>`, true);
+  const irFlow = m.querySelector('#ir-flow'); if (irFlow) irFlow.onclick = () => { cerrar(); irA('flow'); };
   m.querySelectorAll('[data-copiar]').forEach((b) => b.onclick = () => copiar(c[b.dataset.copiar]));
   m.querySelectorAll('[data-estado]').forEach((b) => b.onclick = async () => { await api('/contenidos/' + c.id, { method: 'PATCH', body: { estado: b.dataset.estado } }); cerrar(); toast('Estado: ' + b.dataset.estado); render(); });
   $('#mover-fecha', m).onchange = async (e) => { await api('/contenidos/' + c.id, { method: 'PATCH', body: { fecha: e.target.value } }); cerrar(); toast('Pieza movida'); render(); };
@@ -528,9 +532,9 @@ async function iniciar() {
   document.getElementById('login').hidden = true;
   document.getElementById('app').hidden = false;
   const v = location.hash.slice(1);
-  irA(['hoy', 'semana', 'mes', 'subir', 'recordatorios'].includes(v) ? v : 'hoy');
+  irA(['hoy', 'semana', 'mes', 'subir', 'recordatorios', 'flow'].includes(v) ? v : 'hoy');
 }
-window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v !== S.vista && ['hoy', 'semana', 'mes', 'subir', 'recordatorios'].includes(v)) irA(v); });
+window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v !== S.vista && ['hoy', 'semana', 'mes', 'subir', 'recordatorios', 'flow'].includes(v)) irA(v); });
 iniciar();
 </script>
 </body>
