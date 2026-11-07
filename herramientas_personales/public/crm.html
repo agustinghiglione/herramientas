@@ -202,6 +202,7 @@
 
 <div id="modal-raiz"></div>
 <script src="/guia-flow.js"></script>
+<script src="/armado-reel.js"></script>
 
 <script>
 // ================= sesión (la misma que la página de Herramientas) =================
@@ -468,6 +469,7 @@ function abrirPieza(id) {
       <span style="color:var(--ink-faint);font-size:12.5px">${esc(c.servicio)}${c.puntaje ? ' · ' + esc(c.puntaje) : ''}</span>
       ${/^s[ií]/i.test(c.revision_contador) ? '<span class="alerta" style="font-size:12.5px">Necesita revisión del contador</span>' : ''}
     </div>
+    ${tipo(c.formato) === 'reel' ? '<button class="btn primario" id="ir-armado" style="width:100%;margin:10px 0 4px;padding:12px">Ver el armado del reel paso a paso</button>' : ''}
     ${bloque('Gancho', c.gancho)}
     ${bloque('Por qué ganó', c.por_que_gana)}
     ${bloque('Contenido a crear', c.contenido_a_crear, { copiar: 'contenido_a_crear', mono: true })}
@@ -479,6 +481,7 @@ function abrirPieza(id) {
     ${bloque('Link con UTM', c.link_utm, { copiar: 'link_utm' })}
     ${bloque('Texto alternativo', c.texto_alternativo, { copiar: 'texto_alternativo' })}
     <div class="acciones">${tipo(c.formato) === 'reel' ? '<button class="btn" id="ir-flow">¿Qué modelo uso en Flow?</button>' : ''}<button class="btn peligro" id="borrar-pieza">Quitar del calendario</button><button class="btn" id="cerrar-m">Cerrar</button></div>`, true);
+  const irArm = m.querySelector('#ir-armado'); if (irArm) irArm.onclick = () => abrirArmado(c);
   const irFlow = m.querySelector('#ir-flow'); if (irFlow) irFlow.onclick = () => { cerrar(); irA('flow'); };
   m.querySelectorAll('[data-copiar]').forEach((b) => b.onclick = () => copiar(c[b.dataset.copiar]));
   m.querySelectorAll('[data-estado]').forEach((b) => b.onclick = async () => { await api('/contenidos/' + c.id, { method: 'PATCH', body: { estado: b.dataset.estado } }); cerrar(); toast('Estado: ' + b.dataset.estado); render(); });

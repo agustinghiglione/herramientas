@@ -3,7 +3,7 @@ const { normalizar, sumarDias, lunesDe, diaSemana, NOMBRES } = require('./fechas
 
 const CAMPOS = ['fecha', 'dia', 'servicio', 'publico', 'formato', 'capa', 'objetivo', 'idea_ganadora', 'por_que_gana', 'puntaje',
   'gancho', 'contenido_a_crear', 'pedido_para_ia', 'herramienta', 'descripcion', 'hashtags', 'stickers_interactivos', 'cta',
-  'link_utm', 'texto_alternativo', 'revision_contador', 'estado'];
+  'link_utm', 'texto_alternativo', 'revision_contador', 'estado', 'armado_reel'];
 
 function textoCelda(v) {
   if (v == null) return '';
