@@ -21,7 +21,7 @@ const ARM_CSS = `
 .arm-plant .pl b{color:var(--ink);font-size:13px}
 .arm-tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--primary-glow);color:var(--primary)}
 .arm-el{background:var(--card-2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:12px}
-.arm-el h4{margin:0;display:flex;align-items:center;gap:10px;font-size:15px}
+.arm-el h4{margin:0;display:flex;align-items:center;gap:10px;font-size:15px;text-transform:none;letter-spacing:0;color:var(--ink)}
 .arm-pasos{margin:12px 0 0;padding:0;list-style:none;counter-reset:p}
 .arm-pasos li{counter-increment:p;position:relative;padding:8px 0 8px 34px;border-top:1px solid var(--border-soft);line-height:1.5}
 .arm-pasos li:before{content:counter(p);position:absolute;left:0;top:8px;width:22px;height:22px;border-radius:50%;background:var(--border);display:grid;place-items:center;font-size:11px;font-weight:700}
