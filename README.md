@@ -54,3 +54,9 @@ Prospección del estudio contable con negocios encontrados en Google Maps. **Los
    (`CLIENTES_SCRIPT_URL`, `CLIENTES_SCRIPT_CLAVE`, `MAIL_API_TOKEN`, `AGENDA_URL`, …).
 3. `git pull` y reiniciar la app (no hay dependencias nuevas).
 4. Hacer backup también de `server/data/clientes/` (imágenes e informes).
+
+### Agenda de reuniones (`google-apps-script/agenda_prisma.gs`)
+Corre en la cuenta consultoraprismadigital@gmail.com, dueña de la página de reservas de Google Calendar.
+Cada 5 minutos: confirmación con la marca Prisma al cliente que reservó, recordatorios 24 h y 30 min antes,
+cliente de la planilla a "Reunión agendada" y registro en la pestaña "Reuniones". Instalación en el encabezado del archivo.
+El link de la página de reservas va en `AGENDA_URL` del `.env.local`.
