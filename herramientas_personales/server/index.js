@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const { router } = require('./routes');
 const { crmRouter } = require('./crm/routes');
+const { puenteRouter } = require('./crm/puente');
 const { iniciarProgramador } = require('./crm/mail');
 const { clientesRouter, informePublico } = require('./clientes/routes');
 const respuestasClientes = require('./clientes/respuestas');
@@ -11,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 
 app.use(express.json({ limit: '1mb' }));
+app.use('/api/puente', puenteRouter);
 app.use('/api/crm/clientes', clientesRouter);
 app.use('/api/crm', crmRouter);
 // Página pública del informe de cada cliente (sin sesión, con un código difícil de adivinar).

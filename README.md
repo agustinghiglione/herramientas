@@ -60,3 +60,8 @@ Corre en la cuenta consultoraprismadigital@gmail.com, dueña de la página de re
 Cada 5 minutos: confirmación con la marca Prisma al cliente que reservó, recordatorios 24 h y 30 min antes,
 cliente de la planilla a "Reunión agendada" y registro en la pestaña "Reuniones". Instalación en el encabezado del archivo.
 El link de la página de reservas va en `AGENDA_URL` del `.env.local`.
+
+## Viernes Clipper (`clipper/`)
+
+Clips verticales de streamers de GTA VI (Kick) filtrados con Gemini y publicados en TikTok, Instagram y Facebook,
+manejado desde Discord y conectado con este CRM por el puente (`server/crm/puente.js`). Ver `clipper/README.md`.

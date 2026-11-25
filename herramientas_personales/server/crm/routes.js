@@ -34,6 +34,19 @@ router.get('/resumen', (_req, res) => {
   });
 });
 
+// ---------- contador de clips (lo actualiza el bot de Discord) ----------
+router.get('/clips', (req, res) => {
+  const dias = Math.min(Math.max(Number(req.query.dias) || 7, 1), 60);
+  const c = leer().clips || {};
+  const hoy = hoyISO();
+  const lista = [];
+  for (let i = dias - 1; i >= 0; i--) {
+    const f = sumarDias(hoy, -i);
+    lista.push({ fecha: f, ...(c[f] || { creados: 0, aprobados: 0, publicados: 0 }) });
+  }
+  res.json({ hoy, dias: lista });
+});
+
 // ---------- subir el Excel del plan ----------
 router.post('/plan', upload.single('archivo'), async (req, res) => {
   try {

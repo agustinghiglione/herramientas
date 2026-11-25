@@ -1,0 +1,12 @@
+#!/bin/bash
+# Uso: clipper-gemini            → clave general (cuenta principal)
+#      clipper-gemini petclub    → clave del AI Studio de PetClub
+CUENTA="$1"; VAR=GEMINI_API_KEY
+[ -n "$CUENTA" ] && VAR="GEMINI_API_KEY_$(echo "$CUENTA" | tr 'a-z' 'A-Z')"
+read -rsp "Pega la API key de Gemini para ${CUENTA:-la cuenta principal} y Enter: " K; echo
+K=$(echo "$K" | tr -d '[:space:]')
+case "$K" in AIza*|AQ.*) ;; *) echo "Eso no parece una API key de Gemini. Sacala de aistudio.google.com/apikey"; exit 1;; esac
+R=$(curl -s -o /dev/null -w '%{http_code}' -H "x-goog-api-key: $K" -H 'Content-Type: application/json' -d '{"contents":[{"parts":[{"text":"hola"}]}]}' https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent)
+if [ "$R" != "200" ]; then echo "Google rechazo la clave (HTTP $R). No guarde nada."; exit 1; fi
+sed -i "/^$VAR=/d" /opt/clipper/.env; echo "$VAR=$K" >> /opt/clipper/.env
+systemctl restart clipper; echo "Listo: clave de ${CUENTA:-la cuenta principal} guardada y clipper reiniciado ($(systemctl is-active clipper))"
