@@ -1,0 +1,11 @@
+.env
+*.env
+secrets.json
+data/
+models/
+venv/
+__pycache__/
+*.pyc
+*.bak*
+*.mp4
+*.db

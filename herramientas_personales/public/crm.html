@@ -57,7 +57,7 @@
 
   /* ---------- hoy ---------- */
   .grid-hoy { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
   .stat { background: var(--card); border: 1px solid var(--border-soft); border-radius: 14px; padding: 14px 16px; }
   .stat .n { font-size: 24px; font-weight: 700; }
   .stat .l { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
@@ -308,8 +308,10 @@ function buscarEvento(id) { for (const d of Object.values(S.cache)) { const e = 
 
 // ================= HOY =================
 async function vistaHoy(main) {
-  const r = await api('/agenda?desde=' + S.hoy + '&hasta=' + sumar(S.hoy, 6));
+  const [r, cl] = await Promise.all([api('/agenda?desde=' + S.hoy + '&hasta=' + sumar(S.hoy, 6)), api('/clips?dias=7').catch(() => null)]);
   S.hoy = r.hoy; r.dias.forEach((d) => { S.cache[d.fecha] = d; });
+  const clipsHoy = cl ? cl.dias[cl.dias.length - 1] : { creados: 0, aprobados: 0, publicados: 0 };
+  const clipsSemana = cl ? cl.dias.reduce((a, d) => a + d.creados, 0) : 0;
   const [hoy, ...proximos] = r.dias;
   const hechas = hoy.tareas.filter((t) => t.hecha).length;
   const semana = r.dias.flatMap((d) => d.contenidos);
@@ -322,6 +324,7 @@ async function vistaHoy(main) {
     <div class="stat"><div class="n">${hoy.contenidos.length}</div><div class="l">piezas para publicar hoy</div></div>
     <div class="stat"><div class="n">${publicadas}/${semana.length}</div><div class="l">publicadas en los próximos 7 días</div></div>
     <div class="stat"><div class="n">${hoy.eventos.length}</div><div class="l">eventos personales</div></div>
+    <div class="stat" title="Clips de streamers que armó el bot hoy (aprobados / publicados). Últimos 7 días: ${clipsSemana}"><div class="n">${clipsHoy.creados}</div><div class="l">clips creados hoy · ${clipsHoy.aprobados} aprobados · ${clipsHoy.publicados} publicados</div></div>
   </div>
   <div class="grid-hoy">
     <div class="card"><h2>Objetivos de hoy<span class="contador">${hechas} de ${hoy.tareas.length}</span></h2>

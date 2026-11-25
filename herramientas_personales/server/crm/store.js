@@ -19,6 +19,7 @@ const VACIO = () => ({
   recurrentes: [],  // recordatorios que se repiten un día de la semana
   semanas: [],      // registro de cada Excel subido
   mail: { ultimoEnvio: null },
+  clips: {},        // contador diario del clipper: { 'AAAA-MM-DD': { creados, aprobados, publicados } }
 });
 
 let cache = null;

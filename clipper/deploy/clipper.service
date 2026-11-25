@@ -1,0 +1,17 @@
+[Unit]
+Description=Clipper - clips automaticos de streams
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=clipper
+WorkingDirectory=/opt/clipper/app
+EnvironmentFile=/opt/clipper/.env
+Environment=TZ=America/Argentina/Buenos_Aires
+ExecStart=/opt/clipper/venv/bin/python -m clipper.main run
+Restart=always
+RestartSec=20
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

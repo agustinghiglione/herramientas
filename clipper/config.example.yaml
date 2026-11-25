@@ -1,0 +1,170 @@
+# ─────────────────────────────────────────────────────────────
+#  CLIPPER — configuración
+#  Editá este archivo y reiniciá:  sudo systemctl restart clipper
+# ─────────────────────────────────────────────────────────────
+
+data_dir: /opt/clipper/data
+timezone: America/Buenos_Aires
+
+discord:
+  # Canal donde avisa "X salió en vivo / empezó a grabar"
+  live_channel_id: 0
+  # IDs de usuario de Discord que pueden aprobar (vacío = cualquiera del canal)
+  approver_ids: []
+
+monitor:
+  poll_seconds: 120                 # cada cuánto revisa quién está en vivo
+  max_concurrent_recordings: 5
+  # Solo graba si el título o la categoría contienen alguna de estas palabras.
+  # Dejalo vacío [] para grabar cualquier directo.
+  require_keywords: ["gta", "grand theft auto"]
+  quality: "720p60,720p,best"
+
+recording:
+  segment_seconds: 600              # bloques de 10 minutos, como en el video
+  keep_segments_minutes: 45         # borra bloques crudos más viejos que esto
+
+detection:
+  pre_seconds: 20                   # cuánto antes del pico arranca el clip (35-45 s)
+  post_seconds: 10                  # cuánto después del pico termina
+  chat_delay_seconds: 6             # el chat reacciona unos segundos tarde
+  min_gap_seconds: 120              # separación mínima entre dos clips del mismo stream
+  max_clips_per_segment: 2
+  threshold: 4.0                    # más alto = menos clips pero mejores
+  min_words: 15                     # si el streamer casi no habla en el clip, se descarta solo
+  weights: {audio: 1.0, chat: 1.3, emotes: 1.0}
+  # Emotes / palabras que suman "hype" en el chat (minúsculas)
+  emotes:
+    laugh: ["kekw", "lul", "lmao", "lmfao", "omegalul", "icant", "jaja", "jsjs", "xd", "😂", "🤣", "💀", "kekl", "pepelaugh"]
+    hype:  ["pog", "pogchamp", "poggers", "w", "wtf", "omg", "noo", "clip", "clipeen", "clipealo", "😱", "🔥", "gg"]
+
+render:
+  width: 720                        # 720x1280: entra en Discord (<10 MB) y TikTok/Reels lo aceptan bien
+  height: 1280
+  max_bitrate: 1100k
+  whisper_model: base               # tiny | base | small (más grande = más lento)
+  burn_subtitles: true
+  fg_zoom: 1.25                     # zoom del juego en el centro (1.0 = se ve todo, más chico)
+  discord_max_mb: 9.5               # si el clip pesa más, manda una vista previa liviana
+
+publishing:
+  min_gap_minutes: 30               # separa publicaciones de la misma cuenta
+  graph_version: v23.0              # API de Meta
+  youtube_category_id: "20"         # 20 = Gaming
+
+# ─────────────────────────────────────────────────────────────
+#  CUENTAS — una por idioma. Cada una tiene su canal de Discord
+#  para aprobar, sus redes y su lista de streamers.
+#  platform: twitch | kick | youtube     channel: nombre o @handle
+#  keywords: [] en un streamer = grabar cualquier directo suyo (no solo GTA)
+#
+#  destinations: redes donde se publica al aprobar.
+#    - instagram / facebook → automático (Meta)
+#    - tiktok   → tiktok_mode: inbox  (borrador en tu bandeja, publicás con un toque)
+#                              direct (solo cuando TikTok audite la app)
+#    - youtube  → youtube_mode: manual (te llega el archivo) | api (privado hasta auditoría de Google)
+#  Para pasar una red a Post for Me:  - {network: tiktok, provider: postforme}
+# ─────────────────────────────────────────────────────────────
+accounts:
+  petclub:
+    enabled: true
+    language: es
+    destinations: [tiktok]
+    tiktok_mode: inbox
+    youtube_mode: manual
+    postforme_account_ids: {}
+    caption_template: '{hook}
+  
+      {cta}
+  
+  
+      {hashtags}'
+    hashtags_juego: [gta6, gtarp, gta, gtavi, gtaroleplay]
+    hashtags_humor_n: 2
+    hashtags_pool: [humor, risas, momentosgraciosos, streamers, clipsdestream, comedia, parati]
+    ctas: [Etiquetá al amigo que haría esto, '¿Vos qué hacías en su lugar?', No puede ser real, Seguinos para más momentos así, Esperá al final, Mandáselo a alguien que necesite reírse]
+    streamers:
+    - name: Peereira7
+      platform: kick
+      channel: peereira7
+      keywords: []
+    - name: DjMaRiiO
+      platform: kick
+      channel: djmariio
+      keywords: []
+    nombre_tiktok: PetClub
+  es:
+    enabled: true
+    language: es
+    review_channel_id: 0
+    destinations: [instagram, facebook, tiktok, youtube]
+    tiktok_mode: inbox
+    youtube_mode: manual
+    postforme_account_ids: {}       # se usa recién cuando pagues Post for Me
+    caption_template: "{hook}\n{cta}\n\n{hashtags}"
+    hashtags_juego: [gta6, gtarp, gta, gtavi, gtaroleplay]   # se usan si Gemini no devuelve hashtags propios
+    hashtags_humor_n: 2
+    hashtags_pool: [humor, risas, momentosgraciosos, streamers, clipsdestream, comedia, parati]
+    ctas: ["Etiquetá al amigo que haría esto", "¿Vos qué hacías en su lugar?", "No puede ser real", "Seguinos para más momentos así", "Esperá al final", "Mandáselo a alguien que necesite reírse"]
+    streamers:
+      # Argentina / LatAm (cualquier directo)
+      # - {name: Spreen,     platform: kick,    channel: spreen,           keywords: []}
+      - {name: Westcol,    platform: kick,    channel: westcol,          keywords: []}
+      # - {name: Goncho,     platform: kick,    channel: goncho,           keywords: []}
+      - {name: zEkO,       platform: kick,    channel: zeko,             keywords: []}
+      # - {name: Luquita,    platform: kick,    channel: luquitarodriguez, keywords: []}
+      # - {name: Luquita,    platform: twitch,  channel: luquitarodriguez, keywords: []}
+      # - {name: Coscu,      platform: kick,    channel: coscu,            keywords: []}
+      # España (cualquier directo)
+      # - {name: AuronPlay,  platform: twitch,  channel: auronplay,        keywords: []}
+      # - {name: Ibai,       platform: twitch,  channel: ibai,             keywords: []}
+      # - {name: Rubius,     platform: twitch,  channel: rubius,           keywords: []}
+      # - {name: TheGrefg,   platform: twitch,  channel: thegrefg,         keywords: []}
+      # - {name: IlloJuan,   platform: twitch,  channel: illojuan,         keywords: []}
+      # - {name: Perxitaa,   platform: twitch,  channel: perxitaa,         keywords: []}
+      # - {name: Xokas,      platform: twitch,  channel: elxokas,          keywords: []}
+
+  en:
+    enabled: false                  # se activa cuando escalemos
+    language: en
+    review_channel_id: 0
+    destinations: [instagram, facebook, tiktok, youtube]
+    tiktok_mode: inbox
+    youtube_mode: manual
+    postforme_account_ids: {}
+    caption_template: "{name} plays GTA 6 😂 {hook} #gta6 #gta #{tag} #clips #streamer"
+    streamers:
+      - {name: Kai Cenat,  platform: twitch,  channel: kaicenat}
+      - {name: xQc,        platform: kick,    channel: xqc}
+      - {name: IShowSpeed, platform: youtube, channel: "@IShowSpeed"}
+      - {name: Adin Ross,  platform: kick,    channel: adinross}
+      - {name: CaseOh,     platform: twitch,  channel: caseoh_}
+
+filtro_humor:                       # filtro antes de mandar el clip a Discord
+  risa: true                        # detector de risa local
+  min_risa_segundos: 0.4            # menos risa que esto = descarte (salvo que el chat explote)
+  chat_sin_risa: 6                  # si el chat tiene este pico, pasa aunque no haya risa
+  gemini: true                      # juez de humor con Gemini (si hay GEMINI_API_KEY)
+  nota_minima: 7                    # nota de 1 a 10 para llegar a Discord
+
+# De dónde salen los clips: "kick_clips" = los más vistos que hizo el público en Kick; "streams" = grabar los streams
+origen: kick_clips
+kick_clips:
+  cada_minutos: 20       # cada cuánto revisa los clips de cada streamer
+  periodo: week          # day | week
+  min_vistas: 50         # vistas mínimas del clip en Kick
+  max_por_streamer: 2    # clips nuevos por streamer en cada vuelta
+  min_segundos: 6
+  max_segundos: 75
+  min_words: 4
+  categorias: [grand theft auto vi]  # ej. [grand theft auto] para quedarse solo con GTA; vacío = todas
+
+# Holakase: plan de contenido (videos de jardinería con Google Flow)
+holakase:
+  activo: true
+  primer_sabado: "2026-11-28"   # sábado por medio desde esta fecha se genera el plan de 2 semanas
+  hora_plan: "09:00"
+  hora_video: "10:00"
+  creditos_dia: 50
+  costo_toma: 10
+  semanas_agenda: 26
